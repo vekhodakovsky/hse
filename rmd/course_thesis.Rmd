@@ -1,0 +1,1335 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    toc: true
+    toc_float: true
+    df_print: paged
+editor_options:
+    chink_output_type: console
+---
+
+<br>
+
+<div class="h1" style="text-align: center;"><b>
+Relationship between Europeans' trust in political institutions and their attitude to government surveillance
+</b></div>
+
+<div class="h5" style="text-align: center;"><b>
+*Modern Social Analysis, HSE SPb (Course Thesis)*
+</b></div>
+
+<div class="h4" style="text-align: center;"><b>
+Vasily Khodakovsky
+</b></div>
+
+<br>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+ 
+  
+```{r, include = FALSE}
+Sys.setlocale("LC_ALL", "English")
+```
+  
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Data
+
+<br>
+
+#### [5th wave of European Values Study (EVS)](https://europeanvaluesstudy.eu/)
+
+<br>
+
+```{r packages}
+library(plyr)
+library(dplyr)
+library(kableExtra)
+```
+ 
+<br>
+
+```{r data frame}
+library(foreign)
+EVS_raw <- read.spss("C:/Users/Vasily/Downloads/EVS.sav", 
+                     use.value.labels = T, to.data.frame = T)
+```
+ 
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Countries
+
+
+```{r}
+table(EVS_raw$country) %>% 
+  as.data.frame() %>% 
+  setNames(c("Countries", "Number of respondents")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+
+<br>
+<br>
+<br>
+
+#### Creating new variable `part`, that indicates is country ex-socialist or not (Eastern Europe or not):
+
+```{r}
+EVS_raw$part <- "West"
+
+countries_part <- c("Albania", "Armenia", "Azerbaijan", 
+                    "Belarus", "Bosnia and Herzegovina", "Bulgaria", 
+                    "Croatia", "Czechia", "Estonia", 
+                    "Georgia", "Hungary", "Lithuania", 
+                    "Montenegro", "North Macedonia", "Poland", 
+                    "Romania", "Russia", "Serbia", 
+                    "Slovakia", "Slovenia")
+
+EVS_raw <- EVS_raw %>% 
+  mutate(part = ifelse(country %in% countries_part, "East", part))
+
+
+EVS_raw$part = as.factor(EVS_raw$part)
+```
+
+<br>
+
+```{r}
+table(EVS_raw$part) %>% 
+  as.data.frame() %>% 
+  setNames(c("Part of Europe", "Number of respondents")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+
+<br>
+<br>
+<br>
+
+### Trust in political institutions 
+
+<br>
+
+#### Q38G) Parliament:
+
+```{r}
+table(EVS_raw$v121) %>% 
+  as.data.frame() %>% 
+  setNames(c("Level of confidence in parliament", "Number of respondents")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r}
+EVS_raw$v121 <- dplyr::recode(EVS_raw$v121, 
+                              "a great deal" = 4,
+                              "quite a lot" = 3,
+                              "not very much" = 2,
+                              "none at all" = 1)
+```
+
+<br>
+
+```{r}
+EVS_raw$v121 <- as.numeric(EVS_raw$v121)
+```
+
+<br>
+
+```{r}
+table(EVS_raw$v121) %>% 
+  as.data.frame() %>% 
+  setNames(c("Level of confidence in parliament", "Number of respondents")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+#### Q38H) Civil service:
+
+```{r}
+table(EVS_raw$v122) %>% 
+  as.data.frame() %>% 
+  setNames(c("Level of confidence in civil service", "Number of respondents")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r}
+EVS_raw$v122 <- dplyr::recode(EVS_raw$v122, 
+                              "a great deal" = 4,
+                              "quite a lot" = 3,
+                              "not very much" = 2,
+                              "none at all" = 1)
+```
+
+<br>
+
+```{r}
+EVS_raw$v122 <- as.numeric(EVS_raw$v122)
+```
+
+<br>
+
+```{r}
+table(EVS_raw$v122) %>% 
+  as.data.frame() %>% 
+  setNames(c("Level of confidence in civil service", "Number of respondents")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+
+<br>
+<br>
+<br>
+
+#### Q38Q) Government:
+
+```{r}
+table(EVS_raw$v131) %>% 
+  as.data.frame() %>% 
+  setNames(c("Level of confidence in government", "Number of respondents")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r}
+EVS_raw$v131 <- dplyr::recode(EVS_raw$v131, 
+                              "a great deal" = 4,
+                              "quite a lot" = 3,
+                              "not very much" = 2,
+                              "none at all" = 1)
+```
+
+<br>
+
+```{r}
+EVS_raw$v131 <- as.numeric(EVS_raw$v131)
+```
+
+<br>
+
+```{r}
+table(EVS_raw$v131) %>% 
+  as.data.frame() %>% 
+  setNames(c("Level of confidence in government", "Number of respondents")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+#### Index:
+
+Creating Political Trust Index
+
+```{r}
+EVS_raw$polit <- (EVS_raw$v121 + EVS_raw$v122 + EVS_raw$v131)/3
+```
+
+<br>
+<br>
+<br>
+
+##### Cronbach's alpha of the index
+
+```{r}
+library(ltm)
+polit_cronbach <- EVS_raw %>% dplyr::select(v121, v122, v131)
+cronbach.alpha(polit_cronbach, na.rm = T)
+```
+
+Level of Cronbach's alpha is fine.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+### Surveillance
+
+<br>
+
+#### Q58A) Should the government have the right to keep people under video surveillance in public areas:
+
+```{r}
+table(EVS_raw$v205) %>%
+  as.data.frame() %>%
+  setNames(c("Attitude to the video surveillance", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r}
+EVS_raw$v205 <- dplyr::recode(EVS_raw$v205, 
+                              "definitely should have the right" = 4,
+                              "probably should have the right" = 3,
+                              "probably should not have the right" = 2,
+                              "definitely should not have the right" = 1)
+```
+
+<br>
+
+```{r}
+EVS_raw$v205 <- as.numeric(EVS_raw$v205)
+```
+
+<br>
+
+```{r}
+table(EVS_raw$v205) %>%
+  as.data.frame() %>%
+  setNames(c("Attitude to the video surveillance", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+#### Q58B) Should the government have the right to monitor all e-mails and any other information exchanged on the Internet:
+
+```{r}
+table(EVS_raw$v206) %>%
+  as.data.frame() %>%
+  setNames(c("Attitude to the internet surveillance", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r}
+EVS_raw$v206 <- dplyr::recode(EVS_raw$v206, 
+                              "definitely should have the right" = 4,
+                              "probably should have the right" = 3,
+                              "probably should not have the right" = 2,
+                              "definitely should not have the right" = 1)
+```
+
+<br>
+
+```{r}
+EVS_raw$v206 <- as.numeric(EVS_raw$v206)
+```
+
+<br>
+
+```{r}
+table(EVS_raw$v206) %>%
+  as.data.frame() %>%
+  setNames(c("Attitude to the internet surveillance", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+#### Q58C) Should the government have the right to collect information about anyone living in the country without their knowledge:
+
+```{r}
+table(EVS_raw$v207) %>%
+  as.data.frame() %>%
+  setNames(c("Attitude to collecting information about anyone", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r}
+EVS_raw$v207 <- dplyr::recode(EVS_raw$v207, 
+                              "definitely should have the right" = 4,
+                              "probably should have the right" = 3,
+                              "probably should not have the right" = 2,
+                              "definitely should not have the right" = 1)
+```
+
+<br>
+
+```{r}
+EVS_raw$v207 <- as.numeric(EVS_raw$v207)
+```
+
+<br>
+
+```{r}
+table(EVS_raw$v207) %>%
+  as.data.frame() %>%
+  setNames(c("Attitude to the collecting information about anyone", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+#### Index:
+
+Creating Surveillance Attitude Index
+
+```{r}
+EVS_raw$surv <- (EVS_raw$v205 + EVS_raw$v206 + EVS_raw$v207)/3
+```
+
+<br>
+
+##### Cronbach's alpha of the index
+
+```{r}
+surv_cronbach <- EVS_raw %>% dplyr::select(v205, v206, v207)
+cronbach.alpha(surv_cronbach, na.rm = T)
+```
+
+Level of Cronbach's alpha is fine.
+
+<br>
+<br>
+<br>
+<br>
+
+
+### Gender
+
+
+```{r list of variablesw2}
+table(EVS_raw$v225) %>%
+  as.data.frame() %>%
+  setNames(c("Gender", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+#### Renaming variable:
+
+```{r}
+EVS_raw$gender <- EVS_raw$v225
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Education
+
+```{r list of variablesvcc}
+table(EVS_raw$v243_r) %>%
+  as.data.frame() %>%
+  setNames(c("Education category", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+#### Deleting "other" education because it has small proportion:
+
+```{r}
+EVS_raw <- EVS_raw %>% filter(v243_r == "lower" |
+                              v243_r == "medium" | 
+                              v243_r == "higher")
+EVS_raw <- EVS_raw[!EVS_raw$v243_r == "other",]
+EVS_raw$v243_r = droplevels(EVS_raw$v243_r) 
+```
+
+<br>
+
+```{r}
+table(EVS_raw$v243_r) %>%
+  as.data.frame() %>%
+  setNames(c("Education category", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+#### Renaming variable:
+
+```{r}
+EVS_raw$education <- EVS_raw$v243_r
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Income
+
+
+Three categories, depend on the income in the country
+
+```{r list of variablesdls}
+table(EVS_raw$v261_r) %>%
+  as.data.frame() %>%
+  setNames(c("Income category", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+#### Renaming variable:
+
+```{r}
+EVS_raw$income <- EVS_raw$v261_r
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Size of town
+
+
+```{r list sdfof variables}
+table(EVS_raw$v276_r) %>%
+  as.data.frame() %>%
+  setNames(c("Size of town", "Number of respondents")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+#### Renaming variable:
+
+```{r}
+EVS_raw$size_town <- EVS_raw$v276_r
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Age
+
+```{r listfg of variables}
+data.frame(c("Min", "Max"),
+           c(head(levels(EVS_raw$age))[1], tail(levels(EVS_raw$age))[6])) %>%
+  as.data.frame() %>%
+  setNames(c("Age", " ")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r age}
+EVS_raw$age = mapvalues(EVS_raw$age, from = c("82 and older"), to = c("82")) 
+detach("package:plyr", unload=TRUE)
+
+EVS_raw$age <-as.numeric(as.character(EVS_raw$age))
+
+summary(EVS_raw$age)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+### Final dataset
+
+
+```{r check}
+EVS <- EVS_raw %>% dplyr::select(country, part, 
+                                 polit, surv, 
+                                 gender, age, 
+                                 education, income, 
+                                 size_town)
+
+summary(EVS)
+```
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+  
+  
+# Exploratory Analysis
+
+<br>
+
+### Descriptive Statistics
+
+```{r, fig.height = 10, fig.width = 10}
+par(mfrow = c(2,2))
+plot(EVS$gender, col = "lightblue1", main = "Gender")
+plot(EVS$income, col = "lightblue2", main = "Income")
+plot(EVS$education, col = "lightblue3", main = "Education")
+plot(EVS$size_town, col = "lightblue4", 
+     names.arg = c("<5k", "5k-20k", "20k-100k", "100k-500k", "500k+"), 
+     las = 2, 
+     cex.names = 0.8,
+     main = "Size of town",)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+library(psych)
+round(describe(EVS[c("polit", "surv", "age")]),2) %>% 
+  dplyr::select(min, max, mean, median, sd) %>%
+  as.data.frame() %>%
+  setNames(c("Min", "Max", "Mean", "Median", "SD")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+#### Age:
+
+```{r, fig.width = 10}
+par(mfrow = c(1,2))
+hist(EVS$age, col = "tomato3", xlab = "Age", main = "Histogram of age")
+hist(log(EVS$age), col = "tomato4", xlab = "log(age)", main = "Histogram of log(age)")
+```
+
+<br>
+
+```{r}
+summary(EVS$age)
+```
+
+<br>
+
+```{r}
+library(car)
+qqPlot(EVS$age, xlab = "Norm quantiles", ylab = "Age", main = "QQ-Plot of age")
+```
+
+<br>
+<br>
+<br>
+
+#### Surveillance Attitude Index and Political Trust Index:
+
+```{r}
+par(mfrow = c(1, 2))
+
+boxplot(EVS$surv, col = "wheat1", main = "Boxplot of the\nSurveillance Attitude Index")
+mean_surv <- mean(EVS$surv, na.rm = T)
+text(x = 1, y = mean_surv, labels = paste0(round(mean_surv, 2)), pos = 3)
+
+boxplot(EVS$polit, col = "wheat2", main = "Boxplot of the\nPolitical Trust Index")
+mean_polit <- mean(EVS$polit, na.rm = T)
+text(x = 1, y = mean_polit, labels = paste0(round(mean_polit, 2)), pos = 3)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Map of the Surveillance Attitude
+
+```{r}
+averages <- aggregate(surv ~ country, data = EVS, FUN = function(x) round(mean(x), 2)) 
+averages %>% 
+  setNames(c("Country", "Surveillance Attitude Index")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+library(ggplot2)
+library(rnaturalearth)
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+colnames(averages)[1] <- "sovereignt"
+world <- merge(world, averages, by = "sovereignt")
+
+ggplot(data = world) +
+    geom_sf(aes(fill = surv)) +
+    coord_sf(xlim = c(-12, 51), ylim = c(35.7, 72), expand = FALSE) +
+  scale_fill_gradient(low = "tomato2", high = "lightblue2") +
+  labs(fill = "Surv") + ggtitle("Surveillance Attitude Index")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Correlational Analysis
+
+<br>
+
+#### Scatter plots for dependent and independent variables:
+
+```{r, fig.width = 10}
+sca1 = ggplot(EVS, aes(x = age, y = surv)) + geom_point() + 
+  xlab("Age") + ylab("Surveillance Attitude Index") +  
+  geom_smooth() + theme_bw() 
+
+sca2 = ggplot(EVS, aes(x = polit, y = surv)) + geom_point() + 
+  xlab("Political Trust Index") + ylab("Surveillance Attitude Index") +  
+  geom_smooth() + theme_bw() 
+
+grid_sc <- cowplot::plot_grid(sca1, sca2)
+cowplot::plot_grid(grid_sc, ncol = 1, rel_heights = c(0.1, 1)) 
+```
+
+<br>
+<br>
+<br>
+
+#### Correlation:
+
+```{r}
+corr_data <- data.frame(EVS$surv, EVS$age, EVS$polit)
+colnames(corr_data) <- c("Surveillance Attitude Index", "Age", "Political Trust Index")
+cor <- cor(corr_data, method = "kendall", use = "pairwise.complete.obs")
+```
+
+<br>
+
+```{r}
+library(ggcorrplot)
+ggcorrplot(cor, type = "lower", lab = TRUE)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Statistical test for means' comparison
+
+<br>
+
+#### By Gender:
+```{r} 
+wilcox.test(EVS$surv ~ EVS$gender)
+```
+
+<br>
+
+```{r} 
+boxplot(EVS$surv~EVS$gender,
+        col = "aquamarine2",
+        xlab = "Gender", 
+        ylab = "Index of Surveillance",
+        main = "Comparison of mean values of the\n Surveillance Attitude Index by gender")
+
+means <- aggregate(surv ~ gender, data = EVS, FUN = mean)
+text(x = seq_along(means$gender), y = means$surv, labels = round(means$surv, 2),
+     pos = 3, offset = 0.5)
+```
+
+<br>
+<br>
+<br>
+
+#### By Income:
+
+```{r}
+kruskal.test(surv ~ income, data = EVS)
+```
+
+<br>
+
+```{r}
+EVS[c("surv", "income")] %>% na.omit() %>% 
+ggplot() +
+  geom_boxplot(aes(x = surv, y = income)) +
+  xlab("Surveillance Attitude Index") + ylab("Income") + theme_bw()
+```
+
+<br>
+
+```{r}
+library(FSA)
+dunnTest(EVS$surv,EVS$income, method = "bonferroni")
+```
+
+There is a statistical difference in mean values of Surveillance Attitude Index<br>
+between groups with low and high income.
+
+<br>
+
+```{r}
+EVS$income <- as.factor(EVS$income)
+EVS %>% dplyr::group_by(income) %>% summarize(mean = mean(surv, na.rm = T)) %>%
+  as.data.frame() %>%
+  setNames(c("Income", "Mean of the Surveillance Attitude Index")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria") 
+```
+
+<br>
+<br>
+<br>
+
+#### By Size of town:
+
+```{r}
+kruskal.test(surv ~ size_town, data = EVS)
+```
+
+<br>
+
+```{r}
+EVS[c("surv", "size_town")] %>% na.omit() %>% 
+ggplot() +
+  geom_boxplot(aes(x = surv, y = size_town)) +
+  xlab("Surveillance Attitude Index") + ylab("Size of town") + theme_bw()
+```
+
+<br>
+
+```{r} 
+dunnTest(EVS$surv, EVS$size_town, method = "bonferroni")
+```
+
+<br>
+
+```{r} 
+EVS %>% dplyr::group_by(size_town) %>% summarize(mean = mean(surv, na.rm = T)) %>%
+  as.data.frame() %>%
+  setNames(c("Size of town", "Mean of the Surveillance Attitude Index")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")  
+```
+
+<br>
+<br>
+<br>
+
+#### By Education:
+
+```{r}
+kruskal.test(surv ~ education, data = EVS)
+```
+
+<br>
+
+```{r}
+EVS[c("surv", "education")] %>% na.omit() %>% 
+ggplot() +
+  geom_boxplot(aes(x = surv, y = education)) +
+  xlab("Surveillance Attitude Index") + ylab("Education") + theme_bw()
+```
+
+<br>
+
+```{r} 
+dunnTest(EVS$surv, EVS$education, method = "bonferroni")
+```
+
+<br>
+
+```{r} 
+EVS %>% dplyr::group_by(education) %>% summarize(mean = mean(surv, na.rm = T)) %>%
+  as.data.frame() %>%
+  setNames(c("Education", "Mean of the Surveillance Attitude Index")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria")   
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Hypotheses testing
+
+<br>
+
+#### H1: The level of political trust is positively associated with the approval of government surveillance;
+
+#### H2: The level of political trust has a stronger influence on the approval of surveillance in post-communist countries than in Western European countries;
+
+#### H3: Age has a stronger influence on the approval of surveillance in Western European countries than in post-communist countries.
+
+<br>
+<br>
+<br>
+
+### Models 1 & 2
+
+```{r}
+library(sjPlot)
+m1 <- lm(surv ~ polit, data = EVS)
+tab_model(m1)
+```
+
+<br>
+
+```{r}
+m2 <- lm(surv ~ polit*part, data = EVS)
+tab_model(m2)
+```
+
+<br>
+
+```{r}
+library(interactions)
+interact_plot(m2, pred = polit, modx = part, plot.points = F) 
+```
+
+<br>
+<br>
+<br>
+
+#### Check for multicollinearity:
+
+```{r} 
+vif(m2) %>%
+  as.data.frame() %>%
+  setNames(c("VIF")) %>%
+  kbl() %>%
+  kable_classic(html_font = "Cambria") 
+```
+
+There is a multicollinearity presence for interaction effect.
+
+<br>
+<br>
+<br>
+
+#### Leverage-Residual Plots:
+
+```{r} 
+plot(hatvalues(m1), rstudent(m1), type = 'n')
+#thresholds for residuals
+
+abline(h = c(-2, 2), lty = 2)
+#thresholds for leverages
+
+abline(v = c(2,3)*1/56407, lty = 2)
+
+cook <- sqrt(cooks.distance(m1))
+points(hatvalues(m1), rstudent(m1), cex = 10*cook/max(cook))
+text(hatvalues(m1), rstudent(m1))
+```
+
+<br>
+
+```{r} 
+plot(hatvalues(m2), rstudent(m2), type = 'n')
+#thresholds for residuals
+
+abline(h = c(-2, 2), lty = 2)
+#thresholds for leverages
+
+abline(v = c(2,3)*3/56407, lty = 2)
+
+cook <- sqrt(cooks.distance(m2))
+points(hatvalues(m2), rstudent(m2), cex = 10*cook/max(cook))
+text(hatvalues(m2), rstudent(m2))
+```
+
+<br>
+<br>
+<br>
+
+#### Residuals distribution:
+
+```{r}
+qqPlot(m1)
+```
+
+<br>    
+
+```{r}
+qqPlot(m2) 
+```
+
+<br>
+<br>
+<br>
+
+#### Tests for non-constant variances: 
+
+```{r}
+ncvTest(m1)
+```
+
+<br>
+
+```{r}
+library(lmtest)
+bptest(m1, data = EVS, studentize = T)
+```
+
+There is a heteroscedasticity presence.
+
+<br>
+
+```{r}
+ncvTest(m2)
+```
+
+<br>
+
+```{r}
+bptest(m2, data = EVS, studentize = T)
+```
+
+There is a heteroscedasticity in this model, too.
+
+<br>
+
+#### Residuals plots:
+
+```{r}
+library(plotmo)
+plotres(m1, which = 1:4, caption = "m1")
+```
+
+<br>
+
+```{r}
+plotres(m2, which = 1:4, caption = "m2")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Model 3
+
+```{r}
+m3 <- lm(surv ~ polit + gender + income + size_town + education + age, data = EVS)
+tab_model(m3)
+```
+
+<br>
+<br>
+<br>
+
+#### Check for multicollinearity:
+
+```{r} 
+vif(m3)  
+```
+
+
+<br>
+<br>
+<br>
+
+#### Residuals distribution:
+
+```{r}
+qqPlot(m3) 
+```
+
+<br>
+
+```{r}
+ncvTest(m3)
+```
+
+<br>
+
+```{r}
+bptest(m3, data = EVS, studentize = T)
+```
+
+There is a heteroscedasticity presence.
+
+<br>
+<br>
+<br>
+
+#### Residuals plots:
+
+```{r}
+plotres(m3, which = 1:4, caption = "m3")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Model 4
+
+```{r}
+m4 <- lm(surv ~ gender + income + size_town + education + age + polit*part, data = EVS)
+tab_model(m4)
+```
+
+<br>
+<br>
+<br>
+
+#### Check for multicollinearity:
+
+```{r} 
+vif(m4)
+```
+
+There is a multicollinearity presence for interaction effect.
+
+<br>
+<br>
+<br>
+
+#### Residuals distribution:
+
+```{r}
+qqPlot(m4) 
+```
+
+<br>
+
+```{r}
+ncvTest(m4)
+```
+
+<br>
+
+```{r}
+bptest(m4, data = EVS, studentize = T)
+```
+
+Based on non-constant variance test there is no heteroscedasticity,<br>
+but studentized Breusch-Pagan test shows that there is a heteroscedasticity.
+
+<br>
+<br>
+<br>
+
+```{r}
+plotres(m4, which = 1:4, caption = "m4")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Model 5
+
+```{r}
+m5 <- lm(surv ~ polit + gender + income + size_town + education + age*part, data = EVS)
+tab_model(m5)
+```
+
+<br>
+
+```{r}  
+interact_plot(m5, pred = age, modx = part, plot.points = FALSE) 
+```
+
+
+<br>
+<br>
+<br>
+
+```{r}
+vif(m5)
+```
+
+There is a multicollinearity presence for interaction effect.
+
+<br>
+<br>
+<br>
+
+
+#### Residuals distribution:
+
+```{r}
+qqPlot(m5) 
+```
+
+<br>
+
+```{r}
+ncvTest(m5) 
+bptest(m5, data = EVS, studentize = T)
+```
+
+Based on non-constant variance test and studentized Breusch-Pagan test, there is a heteroscedasticity.
+
+<br>
+<br>
+<br>
+
+#### Residuals plots:
+
+```{r}
+plotres(m5, which = 1:4, caption = "m5")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Non-constant error variance
+
+(Heteroscedasticity)
+
+```{r}  
+spreadLevelPlot(m1)
+```
+
+<br>
+
+```{r}  
+spreadLevelPlot(m2)
+```
+
+<br>
+
+```{r}  
+spreadLevelPlot(m3)
+```
+
+<br>
+
+```{r}  
+spreadLevelPlot(m4)
+```
+
+<br>
+
+```{r}  
+spreadLevelPlot(m5)  
+```
+
+
+As there is a heteroscedasticity present, we need to use inference for estimated coefficients<br>
+with a heteroscedasticity-consistent covariance matrix.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Inference for Estimated Coefs
+
+```{r}
+library(sandwich)
+coeftest(m1, vcovHC(m1, "HC1"))
+```
+
+<br>
+
+```{r}
+coeftest(m2, vcovHC(m2, "HC1"))
+```
+
+<br>
+
+```{r}
+coeftest(m3, vcovHC(m3, "HC1"))
+```
+
+<br>
+
+```{r}
+coeftest(m4, vcovHC(m4, "HC1"))
+```
+
+<br>
+
+```{r}
+coeftest(m5, vcovHC(m5, "HC1")) 
+```
+
+<br>
+<br>
+<br>
+
+#### All three hypotheses stated here were confirmed.
+
+<br>
+<br>
+<br>
+
+#### The End. 
+
+
