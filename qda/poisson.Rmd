@@ -1,0 +1,276 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    df_print: paged
+editor_options:
+    chink_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+```{r include=FALSE}
+Sys.setlocale("LC_ALL", "English")
+```
+
+<br>
+
+<div style="text-align: center;">
+<b><span class="h1">Poisson Models</span></b>
+
+<span class="h5">
+<b>Modern Social Analysis, HSE SPb</b><br>
+*Course:* <b>Quantitative Data Analysis</b>
+</span>
+
+<span class="h4"><b>
+Vasily Khodakovsky</span>
+</b></div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Packages
+
+```{r}
+library(car)
+library(sjPlot)
+library(pscl)
+library(texreg)
+library(AER)
+library(vcdExtra)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+# Data
+
+```{r}
+head(bioChemists)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Analysis
+
+```{r}
+mpois = glm(art ~ fem + mar + kid5 + phd + ment, data = bioChemists, family = poisson)
+tab_model(mpois)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+mpois_inter = glm(art ~ mar + kid5 + phd*fem + ment, data = bioChemists, family = poisson)
+tab_model(mpois_inter)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Check for overdispersion
+
+```{r}
+dispersiontest(mpois, trafo = 1) #checks linear relationship
+```
+
+P-value < 0.05 => mean and variance are not equal;
+
+Overdispersion is present - alpha is lower 1 (coef between mean and variance).
+
+<br>
+<br>
+<br>
+
+```{r}
+dispersiontest(mpois, trafo = 2) #checks quadratic relationship
+```
+
+
+If p-value < 0.05, it is quadratic.
+
+Negative Binomial is more suitable.
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Quasi-Poisson
+
+```{r}
+fm_qpois <- glm(art ~ fem + mar + kid5 + phd + ment,
+                data = bioChemists, family = quasipoisson)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+fm_nb <- MASS::glm.nb(art ~ fem + mar + kid5 + phd + ment, 
+                      data = bioChemists)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+screenreg(list(mpois, fm_qpois, fm_nb))
+```
+
+Intercept and married people lost their significance.
+
+By AIC, BIC, Log Likelihood - model3 is better.
+
+Deviance of model1 and model2 are almost similar.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Check for inflations of zeroes
+
+```{r}
+zero.test(table(bioChemists$art))
+```
+
+There are too many zeros; need to use Zeroes Inflation Measures.
+
+There are two groups of people: who have and who don’t have articles.
+
+<br>
+<br>
+<br>
+
+```{r}
+#by default it is poisson
+#"|1" -> separation between count and zero models = > specify for whose who have articles
+#we predict here zero, whether or not the value will be zero
+
+#first part is negative binomial model, and the second part after "| 1"
+#are those who will have zero published articles only for intercept
+
+fm_zinb1 <- zeroinfl(art ~ fem + mar + kid5 + phd + ment|1,
+                     data = bioChemists, dist = "negbin")
+
+summary(fm_zinb1)
+```
+
+<br>
+
+log(theta) is a coeff between variance and mean.
+
+<br>
+<br>
+<br>
+
+```{r}
+fm_zinb1 <- zeroinfl(art ~ fem + mar + kid5 + phd + ment,
+                     data = bioChemists, dist = "negbin")
+
+summary(fm_zinb1)
+```
+
+<br>
+
+The log of odds do not have publications decreases by 0.88 with each mentor’s publication.
+
+<br>
+<br>
+<br>
+
+```{r}
+fm_zinb3 <- zeroinfl(art ~ fem + mar + kid5 + phd + ment|ment,
+                     data = bioChemists, dist = "negbin")
+
+summary(fm_zinb3)
+```
+
+Prediction of success -> not publushing.
+
+<br>
+<br>
+<br>
+
+```{r}
+pR2(mpois)[4]
+```
+
+<br>
+
+```{r}
+pR2(fm_zinb3)[4]
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+```{r}
+library(MASS)
+data("Insurance")
+head(Insurance)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+#certain variable as exposure (GDP per capita, number a cigarettes by day/week)
+
+mod1 = glm(Claims ~ District + Group + Age, family = poisson, data = Insurance)
+
+mod2 = glm(Claims ~ District + Group + Age + offset(log(Holders)),
+           family = poisson, data = Insurance)
+
+screenreg(list(mod1, mod2))
+```
+
+
+
+
+
+
+
+
+
+
+

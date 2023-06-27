@@ -1,0 +1,325 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    df_print: paged
+editor_options:
+    chink_output_type: console
+---
+
+<br>
+
+<div style="text-align: center;">
+<b><span class="h1">Causal Inference</span></b>
+
+<span class="h5">
+<b>Modern Social Analysis, HSE SPb<br></b>
+*Course:* <b>Quantitative Data Analysis</b>
+</span>
+
+<span class="h4"><b>
+Vasily Khodakovsky</span>
+</b></div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+
+```
+
+
+```{r, include=FALSE}
+Sys.setlocale("LC_ALL", "English")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Packages
+
+```{r}
+library(lpdensity)
+library(rddensity)
+library(rdrobust)
+library(foreign)
+library(sjPlot)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Data
+
+```{r, include=FALSE}
+data = read.dta("C:/Users/Vasily/Downloads/CIT_2018_Cambridge_polecon.dta")
+```
+
+<br>
+
+```{r}
+head(data)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Analysis
+
+<br>
+
+### Regression discontinuity design
+
+```{r}
+rdplot(data$Y, data$X, nbins = c(2500, 500), p = 0, col.lines = "red", 
+       col.dots = "black", title = "", 
+       x.label = "Islamic Margin of Victory", 
+       y.label = "Female High School Percentage", 
+       y.lim = c(0,70))
+```
+
+<br>
+<br>
+<br>
+
+### Checking the difference in the N of observations in groups
+
+```{r}
+summary(rdrobust(data$lpop1994, data$X))
+```
+
+<br>
+<br>
+<br>
+
+### Checking the difference in the density around cutting point
+
+```{r}
+summary(rddensity(data$X))
+```
+
+<br>
+<br>
+<br>
+
+### Checking the fake cut-off
+
+```{r}
+summary(rdrobust(data$Y[data$X >= 0], data$X[data$X >= 0], c = 1))
+```
+
+<br>
+<br>
+<br>
+
+### Setting the number of intervals (30 intervals from both sides)
+
+<br>
+
+##### Linear effect:
+
+```{r}
+rdplot(data$Y, data$X, nbins = c(30,30), p = 1,
+       title = "Cattaneo, Idrobo, and Titiunik 2017a, Fig. 3.2",
+       x.label = "Islamic Margin of Victory",
+       y.label = "Female High School Percentage", 
+       binselect = 'esmv', y.lim = c(0,25))
+```
+
+<br>
+<br>
+<br>
+
+##### Quadratic effect:
+
+```{r}
+rdplot(data$Y, data$X, nbins = c(30,30), p = 2,
+       title = "Cattaneo, Idrobo, and Titiunik 2017a, Fig. 3.2",
+       x.label = "Islamic Margin of Victory",
+       y.label = "Female High School Percentage", 
+       binselect = 'esmv', y.lim = c(0,25))
+```
+
+<br>
+<br>
+<br>
+
+##### 3rd degree polynomial:
+
+```{r}
+rdplot(data$Y, data$X, nbins = c(30,30), p = 3,
+       title = "Cattaneo, Idrobo, and Titiunik 2017a, Fig. 3.2",
+       x.label = "Islamic Margin of Victory",
+       y.label = "Female High School Percentage", 
+       binselect = 'esmv', y.lim = c(0,25))
+```
+
+<br>
+<br>
+<br>
+
+##### Intervals are selected automatically:
+
+```{r}
+rdplot(data$Y, data$X,  binselect = 'qs', p = 1,
+       title = "RD plot with IMSE-optimal quantile-spaced binning 
+       Cattaneo, Idrobo, and Titiunik 2017a, Fig. 3.7",
+       x.label = "Islamic Margin of Victory",
+       y.label = "Female High School Percentage", 
+       x.lim = c(-100,100), y.lim = c(0,25))
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+rdplot(data$Y, data$X,  binselect = 'qs', p = 2,
+       title = "RD plot with IMSE-optimal quantile-spaced binning
+       Cattaneo, Idrobo, and Titiunik 2017a, Fig. 3.7",
+       x.label = "Islamic Margin of Victory",
+       y.label = "Female High School Percentage", 
+       x.lim = c(-100,100), y.lim = c(0,25))
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+rdplot(data$Y, data$X,  binselect = 'qs', p = 3,
+       title = "RD plot with IMSE-optimal quantile-spaced binning
+       Cattaneo, Idrobo, and Titiunik 2017a, Fig. 3.7",
+       x.label = "Islamic Margin of Victory",
+       y.label = "Female High School Percentage", 
+       x.lim = c(-100,100), y.lim = c(0,25))
+```
+
+<br>
+<br>
+<bt>
+
+```{r}
+summary(rdrobust(data$Y, data$X, kernel = 'triangular', 
+                 c = 0, p = 2, bwselect = 'mserd'))
+```
+
+The robust effect is non-significant.
+
+<br>
+<br>
+<br>
+
+### Including controls
+
+```{r}
+controls = cbind(data$vshr_islam1994, data$partycount, data$lpop1994,
+                 data$merkezi, data$merkezp, data$subbuyuk, data$buyuk)
+```
+
+<br>
+
+```{r}
+colnamesZ = c("vshr_islam1994", "partycount", "lpop1994", 
+              "merkezi", "merkezp", "subbuyuk", 
+              "buyuk") #doesn't work well with categorical variables
+```
+
+<br>
+
+```{r}
+summary(rdrobust(data$Y, data$X, covs = controls, kernel = 'triangular', 
+                 p = 2, bwselect = 'mserd'))
+```
+
+The effect is non-significant.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Instrumental variables 
+
+```{r}
+library(AER)
+library(npsf)
+```
+
+<br>
+
+```{r}
+data(mroz)
+head(mroz)
+```
+
+<br>
+
+```{r}
+mroz1 = mroz[mroz$inlf == 1,]
+```
+
+<br>
+
+```{r}
+tab_model(lm(log(wage) ~ educ + exper + I(exper^2), data = mroz1))
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+tab_model(lm(educ ~ motheduc + exper + I(exper^2), data = mroz1))
+```
+
+<br>
+<br>
+<br>
+
+### Predict values of education by mother's education
+
+```{r}
+mod1 = lm(educ ~ motheduc + exper + I(exper^2), data = mroz1)
+mroz1$educf = fitted(mod1)
+```
+
+<br>
+<br>
+<br>
+
+### Fit a new model
+
+```{r}
+tab_model(lm(log(wage) ~ educf + exper + I(exper^2), data = mroz1))
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+mod3 = ivreg(log(wage) ~ educ + exper + I(exper^2)|exper + I(exper^2) + motheduc, data = mroz1)
+summary(mod3, diagnostics = T)
+```
+

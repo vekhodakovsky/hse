@@ -1,0 +1,369 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    df_print: paged
+editor_options:
+    chink_output_type: console
+---
+
+<br>
+
+<div style="text-align: center;">
+<b><span class="h1">Logistic Regression for Multinomial and Ordinal responses</span></b>
+
+<span class="h5">
+<b>Modern Social Analysis, HSE SPb</b><br>
+*Course:* <b>Quantitative Data Analysis</b>
+</span>
+
+<span class="h4"><b>
+Vasily Khodakovsky</span>
+</b></div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+
+```
+
+
+```{r include=FALSE}
+#{r, results = "hide"}
+
+Sys.setlocale("LC_ALL", "English")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Data
+
+```{r}
+library(foreign)
+
+data = read.dta("https://stats.idre.ucla.edu/stat/data/hsbdemo.dta")
+
+options(width = 1000)
+tail(data)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Multinomial regression
+
+```{r}
+#treatment contrasts
+
+library(sjPlot)
+library(nnet)
+m1 = multinom(prog ~ ses + math, data = data)
+```
+
+<br>
+
+```{r}
+summary(m1, Wald = T)
+```
+
+
+Socio-economic status doesn't affect the choice of a program.
+
+1 point increse in math results increases the log of odds of choosing an academic program vs a general program by 0.082, and decreases the log of odds of choosing a vocation program vs a general program by 0.071.
+
+1 point increse in math results increases odds of choosing academic program vs general probram by 9%, and decreases the log of odds of choosing vocation program vs general program by 7%.
+
+<br>
+<br>
+<br>
+
+```{r}
+exp(coef(m1))
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+library(stargazer)
+stargazer(m1, type = "text")
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+library(pscl)
+pR2(m1) #bearable
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+hitmiss(m1) #bearable
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+plot_model(m1, type = "pred", terms = "math")
+```
+
+<br>
+<br>
+<br>
+
+### Changing reference category
+
+```{r}
+data$prog2 = relevel(data$prog, ref = "academic")
+m2 = multinom(prog2 ~ ses + math, data = data)
+```
+
+<br>
+
+```{r}
+summary(m2, Wald = T)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+stargazer(m2, type = "text")
+```
+
+<br>
+<br>
+<br>
+
+### Dummy coding
+
+```{r}
+library(car)
+data$voc = recode(data$prog, ' "vocation" = 1; else = 0 ')
+table(data$prog)
+```
+
+<br>
+
+```{r}
+table(data$voc)
+```
+
+<br>
+
+```{r}
+data$gen = recode(data$prog, ' "general" = 1; else = 0 ')
+table(data$prog)
+```
+
+<br>
+
+```{r}
+table(data$gen)
+```
+
+<br>
+
+```{r}
+data$ac = recode(data$prog, ' "academic" = 1; else = 0 ')
+table(data$prog)
+```
+
+<br>
+
+```{r}
+table(data$ac)
+```
+
+<br>
+<br>
+<br>
+
+### Binary regressions
+
+```{r}
+m_voc = glm(voc ~ ses + math, data = data, family = 'binomial')
+m_gen = glm(gen ~ ses + math, data = data, family = 'binomial')
+m_ac = glm(ac ~ ses + math, data = data, family = 'binomial')
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+stargazer(m_voc, m_gen, m_ac, type = "text")
+```
+
+<br>
+
+```{r}
+exp(coef(m_voc))
+```
+
+<br>
+
+```{r}
+exp(coef(m_gen))
+```
+
+<br>
+
+```{r}
+exp(coef(m_ac))
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+summary(m_voc)
+```
+
+<br>
+
+```{r}
+summary(m_gen)
+```
+
+<br>
+
+```{r}
+summary(m_ac)
+```
+
+<br>
+
+Socio-economic status still doesn't affect the choice of a program.
+
+1 point increase in math results decrease the log of odds of choosing a vocation program by 0.122 and increase the log of odds of choosing an academic program by 0.113.
+
+1 point increase in math results decrease the odds of choosing a vocation program by 12% and increase the odds of choosing an academic program by 12%.
+
+<br>
+<br>
+<br>
+
+```{r}
+pR2(m_voc)
+```
+
+<br>
+
+```{r}
+pR2(m_gen)
+```
+
+<br>
+
+```{r}
+pR2(m_ac)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+hitmiss(m_voc)
+```
+
+<br>
+
+```{r}
+hitmiss(m_gen)
+```
+
+<br>
+
+```{r}
+hitmiss(m_ac)
+```
+
+<br>
+<br>
+<br>
+
+# Ordered Regression
+
+```{r}
+library(carData)
+data(WVS)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+library(MASS)
+m3 = polr(poverty ~ religion + degree + age + gender + country, data = WVS)
+tab_model(m3)
+```
+
+<br>
+
+The log of odds of more more positive evaluation of government efforts is 0.18 greater for the respondents who identify with a religious denomination.
+
+The log of odds of more more positive evaluation of government efforts is 0.32 lower for the respondents who live in Norway compared to those who live in Australia.
+
+With each year of age the log of odds of more more positive evaluation of government efforts increases by 0.01.
+
+The odds of more positive evaluation of government efforts are 20% higher for the respondents who identify with a religious denomination.
+
+The odds of more more positive evaluation of government efforts are 28% lower for the respondents who live in Norway compared to those who live in Australia.
+
+With each year of age the odds of more more positive evaluation of government efforts increase by 1%.
+
+<br>
+<br>
+<br>
+
+```{r}
+plot_model(m3, type = "pred", terms = "age")
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+pR2(m3)
+```
+
+
+<br>
+<br>
+<br>
+
+```{r}
+hitmiss(m3)
+```
+
