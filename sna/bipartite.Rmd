@@ -1,0 +1,301 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    toc: true
+    toc_float: true
+    df_print: paged
+editor_options:
+    chink_output_type: console
+---
+
+<br>
+
+<div style="text-align: center;">
+<span class="h1"><b>Bipartite networks</b></span>
+
+<span class="h5">
+<b>Modern Social Analysis, HSE SPb</b><br>
+*Course:* <b>Social Network Analysis</b></span>
+
+<span class="h4"><b>Vasily Khodakovsky</b></span>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+# Commitees network
+
+```{r}
+df = read.csv("C:/Users/Vasily/Downloads/bimodal.csv", header = T, sep = ";")
+mat = as.matrix(table(df))
+```
+
+<br>
+
+#### Converting matrix to the bipartite network:
+
+```{r}
+library(igraph)
+bg_com = graph.incidence(mat)
+```
+
+<br>
+
+## Visualization
+
+```{r}
+shape = ifelse(V(bg_com)$type, "square", "circle") # assign shape by node type
+col = ifelse(V(bg_com)$type, "tomato3", "lightblue") # assign color by node type
+
+degree_com = degree(bg_com)
+```
+
+<br>
+
+### Default layout
+
+```{r, fig.height = 10, fig.width = 10}
+plot(bg_com, 
+     vertex.shape = shape, 
+     vertex.color = col, 
+     vertex.size = ifelse(shape=="square", degree_com/2, 4),
+     vertex.label = ifelse(shape=="square", V(bg_com)$name, NA),
+     vertex.label.color = "black",
+     vertex.label.dist = 0.15,
+     main = "Members of commitees network:")
+```
+
+<br>
+<br>
+<br>
+
+### Bipartite layout
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+plot(bg_com, layout = layout_as_bipartite(bg_com),
+     vertex.shape = shape, 
+     vertex.color = col, 
+     vertex.size = ifelse(shape=="square", degree_com/2, 4),
+     vertex.label = NA,
+     main = "Members of commitees network\n(Bipartite layout):")
+```
+
+<br>
+<br>
+<br>
+
+### Kamada-Kawai layout
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10} 
+plot(bg_com, layout = layout_with_kk(bg_com),
+     vertex.shape = shape, 
+     vertex.color = col, 
+     vertex.size = ifelse(shape=="square", degree_com/2, 4),
+     vertex.label = ifelse(shape=="square", V(bg_com)$name, NA),
+     vertex.label.color = "black",
+     vertex.label.dist = 0.15,
+     main = "Members of commitees network\n(Kamada-Kawai layout):")
+```
+
+<br>
+<br>
+<br>
+<br>
+
+## Dividing the network
+
+```{r}
+m_row <- mat %*% t(mat) 
+m_column <- t(mat) %*% mat
+```
+
+<br>
+
+```{r} 
+bg_row <- graph_from_adjacency_matrix(m_row,
+                                      mode = "undirected",
+                                      diag = FALSE,
+                                      weighted = TRUE)
+e <- E(bg_row)$weight
+```
+
+<br>
+
+```{r} 
+bg_column <- graph_from_adjacency_matrix(m_column,
+                                         mode = "undirected",
+                                         diag = FALSE, 
+                                         weighted = TRUE)
+e1 <- E(bg_column)$weight
+```
+
+<br>
+<br>
+<br>
+
+### Network of committee members
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10} 
+plot(bg_row, layout = layout_with_fr(bg_row),
+     vertex.shape = shape,
+     vertex.label = NA,
+     vertex.color = col, vertex.size = 5,
+     edge.width = e)
+```
+
+<br>
+<br>
+<br>
+
+### Network of committees
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10} 
+
+plot(bg_column, 
+     vertex.shape = "square",
+     vertex.label.color = "black",
+     vertex.color = "tomato3", vertex.size = 27.5,
+     edge.width = e1)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Scrapped data
+
+<br>
+
+### Data collection
+
+```{r}
+library(rvest)
+```
+
+<br>
+
+```{r include=FALSE}
+url <- "https://ru.wikipedia.org/wiki/%D0%90%D0%B4%D0%BC%D0%B8%D0%BD%D0%B8%D1%81%D1%82%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D0%BE-%D1%82%D0%B5%D1%80%D1%80%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5_%D0%B4%D0%B5%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D0%A1%D0%B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%80%D0%B1%D1%83%D1%80%D0%B3%D0%B0#%D0%92%D0%BD%D1%83%D1%82%D1%80%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%D1%81%D0%BA%D0%B8%D0%B5_%D0%BC%D1%83%D0%BD%D0%B8%D1%86%D0%B8%D0%BF%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5_%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F_%D0%A1%D0%B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%80%D0%B1%D1%83%D1%80%D0%B3%D0%B0"
+```
+
+#### Used website: Wikipedia page about administrative division of Saint-Petersburg
+
+```{r}
+page <- read_html(url)
+```
+
+<br>
+
+#### Extracting municipalities' names:
+
+```{r}
+municipality <- page %>%
+  html_nodes("table.standard tbody tr td:nth-child(5) a") %>%
+  html_text()
+```
+
+<br>
+
+#### Extracting districts' names:
+
+```{r}
+district <- page %>%
+  html_nodes("table.standard tbody tr td:nth-child(10) a") %>%
+  html_text()
+```
+
+<br>
+<br>
+<br>
+
+### Network creation
+
+<br> 
+
+#### Transormation data to the network:
+
+```{r}
+net <- data.frame(Column1 = district, Column2 = municipality)
+tnet <- table(net)
+matrix <- as.matrix(tnet)
+gr <- graph.incidence(matrix)
+```
+
+<br>
+<br>
+<br>
+
+### Administrative division of Saint-Petersburg
+
+<br>
+
+```{r}
+col = ifelse(V(gr)$type, "wheat", "lightblue")
+shape = ifelse(V(gr)$type, "square", "circle")
+size = degree(gr, mode = "in")
+```
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10} 
+plot(gr, layout = layout.fruchterman.reingold(gr),
+     edge.arrow.size = 1,
+     vertex.size = size*1.4,
+     vertex.shape = shape,  
+     vertex.color = col,
+     vertex.frame.color = col,
+     vertex.label.cex = ifelse(shape=="circle", 0.6, 0.3),
+     vertex.label.color = "black")
+```
+
+
+<br>
+<br>
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+cl_louv <- cluster_louvain(gr)
+par(mar = c(0,0,0,0))
+plot(cl_louv, 
+     gr,
+     mark.groups = communities(cl_louv),
+     col = membership(cl_louv),
+     edge.color = "white",
+     vertex.size = 2,
+     vertex.shape = shape,
+     vertex.frame.color = membership(cl_louv),
+     vertex.label = ifelse(shape=="circle", V(gr)$name, NA),
+     vertex.label.color = 'black',
+     vertex.label.cex = 0.8)
+```
+

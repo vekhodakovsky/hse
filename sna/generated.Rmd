@@ -1,0 +1,301 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    toc: true
+    toc_float: true
+    df_print: paged
+editor_options:
+    chink_output_type: console
+---
+
+<br>
+
+<div style="text-align: center;">
+<span class="h1"><b>Generated graphs</b></span>
+
+<span class="h5">
+<b>Modern Social Analysis, HSE SPb</b><br>
+*Course:* <b>Social Network Analysis</b></span>
+
+<span class="h4"><b>Vasily Khodakovsky</b></span>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+# Random Graph
+
+<br>
+
+```{r}
+library(igraph)
+random_graph_sm = sample_gnp(100, 0.01)
+random_graph_med = sample_gnp(100, 0.3)
+random_graph_high = sample_gnp(100, 0.8)
+```
+
+<br>
+
+### Visualization
+
+```{r}
+random_graph <- function(data, p) { 
+  random <- layout_randomly(data, dim = 2) 
+  plot(data, layout = random,  
+     vertex.label = "",
+     vertex.size = 10,
+     edge.arrow.size = 0.1, 
+     main = paste("RG with p =", p))
+}
+```
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+par(mfrow = c(2,2), pty = "s")
+random_graph(random_graph_sm, 0.01)
+random_graph(random_graph_med, 0.3)
+random_graph(random_graph_high, 0.8)
+```
+
+<br>
+<br>
+<br>
+
+### Information about the graphs
+
+```{r}
+library(kableExtra)
+data.frame(
+     density = c(graph.density(random_graph_sm), 
+                 graph.density(random_graph_med), 
+                 graph.density(random_graph_high)), 
+  
+     av_path_length = c(average.path.length(random_graph_sm), 
+                       average.path.length(random_graph_med), 
+                       average.path.length(random_graph_high)), 
+     
+     clustering_coeff = c(transitivity(random_graph_sm), 
+                          transitivity(random_graph_med), 
+                          transitivity(random_graph_high))) %>% 
+  setNames(c("Density", "Average path length", "Clustering coeff")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+### Histograms
+
+```{r}
+get_hist <- function(p1, p2, p3) {
+  par(mfrow = c(1,3))
+  hist(degree(random_graph_sm), main = paste("RG with p =", p1), 
+       col = "grey93", xlab = "degree")
+  hist(degree(random_graph_med), main = paste("RG with p =", p2), 
+       col = "grey73", xlab = "degree")
+  hist(degree(random_graph_high), main = paste("RG with p =", p3), 
+       col = "grey53", xlab = "degree")
+}
+```
+
+<br>
+
+```{r}
+get_hist(0.01, 0.3, 0.8)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Scale-Free Graph
+
+<br>
+
+```{r}
+pa_graph_sm = sample_pa(100, 0.01)
+pa_graph_med = sample_pa(100, 1)
+pa_graph_high = sample_pa(100, 4)
+```
+
+<br>
+
+### Visualization
+
+```{r}
+pa_graph <- function(data, power) { 
+  plot(data,  
+       vertex.label = "",
+       vertex.size = 0.6 + degree(data),
+       vertex.color = "lightblue",
+       edge.arrow.size = 0.1, 
+       main = paste("SF Graph with power =", power))
+}
+```
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+par(mfrow = c(2,2))
+pa_graph(pa_graph_sm, 0.01)
+pa_graph(pa_graph_med, 1)
+pa_graph(pa_graph_high, 4)
+```
+
+<br>
+<br>
+<br>
+
+### Information about the graphs
+
+```{r}
+data.frame(
+     density = c(graph.density(pa_graph_sm), 
+                 graph.density(pa_graph_med), 
+                 graph.density(pa_graph_high)), 
+  
+     av_path_length = c(average.path.length(pa_graph_sm), 
+                       average.path.length(pa_graph_med), 
+                       average.path.length(pa_graph_high)), 
+     
+     clustering_coeff = c(transitivity(pa_graph_sm), 
+                          transitivity(pa_graph_med), 
+                          transitivity(pa_graph_high))) %>% 
+  setNames(c("Density", "Average path length", "Clustering coeff")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+### Histograms
+
+```{r}
+get_hist_pa <- function(p1, p2, p3) {
+  par(mfrow = c(1,3))
+  hist(degree(pa_graph_sm), main = paste("SF Graph with power =", p1), 
+       col = "grey93", xlab = "degree")
+  hist(degree(pa_graph_med), main = paste("SF Graph with power =", p2), 
+       col = "grey73", xlab = "degree")
+  hist(degree(pa_graph_high), main = paste("SF Graph with power =", p3), 
+       col = "grey53", xlab = "degree")
+}
+```
+
+<br>
+
+```{r}
+get_hist_pa(0.01, 1, 4)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Small World Graph
+
+```{r}
+sw_graph_sm = sample_smallworld(1, 100, 5, 0.01)
+sw_graph_med = sample_smallworld(1, 100, 5, 0.2)
+sw_graph_high = sample_smallworld(1, 100, 5, 0.9)
+```
+
+<br>
+
+### Visualization
+
+```{r}
+small_world_graph <- function(data, p) { 
+  plot(data,  
+     vertex.label = "",
+     vertex.size = 4,
+     vertex.color = "darkblue",
+     edge.arrow.size = 0.1, 
+     main = paste("SW Graph with p =", p))
+}
+```
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+par(mfrow = c(2,2), pty = "s")
+small_world_graph(sw_graph_sm, 0.01)
+small_world_graph(sw_graph_med, 0.2)
+small_world_graph(sw_graph_high, 0.9)
+```
+
+<br>
+<br>
+<br>
+
+### Information about the graphs
+
+```{r}
+data.frame(
+     density = c(graph.density(sw_graph_sm), 
+                 graph.density(sw_graph_med), 
+                 graph.density(sw_graph_high)), 
+  
+     av_path_length = c(average.path.length(sw_graph_sm), 
+                       average.path.length(sw_graph_med), 
+                       average.path.length(sw_graph_high)), 
+     
+     clustering_coeff = c(transitivity(sw_graph_sm), 
+                          transitivity(sw_graph_med), 
+                          transitivity(sw_graph_high))) %>% 
+  setNames(c("Density", "Average path length", "Clustering coeff")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+### Histograms
+
+```{r}
+get_hist_sw <- function(p1, p2, p3) {
+  par(mfrow = c(1,3))
+  hist(degree(sw_graph_sm), main = paste("SW Graph with power =", p1), 
+       col = "grey93", xlab = "degree")
+  hist(degree(sw_graph_med), main = paste("SW Graph with power =", p2), 
+       col = "grey73", xlab = "degree")
+  hist(degree(sw_graph_high), main = paste("SW Graph with power =", p3), 
+       col = "grey53", xlab = "degree")
+}
+```
+
+<br>
+
+```{r}
+get_hist_sw(0.01, 0.2, 0.9)
+```

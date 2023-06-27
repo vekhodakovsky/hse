@@ -1,0 +1,517 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    toc: true
+    toc_float: true
+    df_print: paged
+editor_options:
+    chink_output_type: console
+---
+
+<br>
+
+<div style="text-align: center;">
+<span class="h1"><b>Class networks</b></span>
+
+<span class="h5">
+<b>Modern Social Analysis, HSE SPb</b><br>
+*Course:* <b>Social Network Analysis</b></span>
+
+<span class="h4"><b>Vasily Khodakovsky</b></span>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+# General information
+
+```{r}
+library(igraph)
+help <- read_graph("C:/Users/Vasily/Downloads/help_asking.net", format = "pajek")
+friends <- read_graph("C:/Users/Vasily/Downloads/positive.net", format = "pajek")
+negative <- read_graph("C:/Users/Vasily/Downloads/negative.net", format = "pajek")
+```
+
+<br>
+<br>
+<br>
+
+### Nodes
+
+```{r}
+library(kableExtra)
+V(help) %>% 
+  as.data.frame() %>% 
+  setNames(c("Ordinal number")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+### Edges
+
+```{r}
+E(help)
+```
+
+<br>
+<br>
+<br>
+
+### Density
+ 
+ Density captures how many edges there are in a network divided by the total possible number of edges.
+
+```{r}
+data.frame(graph.density(help), graph.density(friends), graph.density(negative)) %>% 
+  as.data.frame() %>% 
+  setNames(c("Density of `help`", "Density of `friends`", "Density of `negative`")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+ 
+<br>
+<br>
+<br>
+ 
+### Degree centrality
+ 
+ Degree centrality of a node shows the number of edges of its node. 
+ 
+ In-degree is the number of in-coming links (predecessor nodes). 
+ 
+ Out-degree is the number of out-going links (successor nodes).
+
+```{r}
+help_degree = degree(help, v = V(help), mode = "in")
+friends_degree_in = degree(friends, v = V(friends), mode = "in")
+friends_degree_out = degree(friends, v = V(friends), mode = "out")
+negative_degree = degree(negative, v = V(negative), mode = "in")
+```
+
+<br>
+
+```{r}
+data.frame(help = help_degree, friends_in = friends_degree_in, 
+           friends_out = friends_degree_out, negative = negative_degree) %>% 
+  as.data.frame() %>% 
+  setNames(c("`help` degree", "`friends` in-degree", 
+             "`friends` out-degree", "`negative` degree")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r}
+data.frame(mean(help_degree), mean(friends_degree_in),
+           mean(friends_degree_out), mean(negative_degree)) %>% 
+  as.data.frame() %>% 
+  setNames(c("Mean degree of `help`", "Mean in-degree of `friends`", 
+             "Mean out-degree of `friends`", "Mean degree of `negative`")) %>% 
+  round(., digits = 2) %>%
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+ 
+<br>
+<br>
+<br>
+<br>
+<br>
+ 
+# Visualization
+
+<br>
+
+### Help network
+ 
+```{r, fig.height = 10, fig.width = 10}
+plot(help, 
+     edge.arrow.size = 0.3, 
+     vertex.label = V(help)$name, 
+     vertex.size = help_degree*3)
+```
+ 
+<br>
+<br>
+<br>
+
+### Friends network
+
+<br>
+ 
+```{r, fig.height = 10, fig.width = 10}
+plot(friends, 
+     edge.arrow.size = 0.3, 
+     vertex.label = V(friends)$name, 
+     vertex.size = friends_degree_in*3)
+```
+ 
+<br>
+<br>
+<br>
+
+### Negative network
+
+<br>
+ 
+```{r, fig.height = 10, fig.width = 10}
+plot(negative, 
+     edge.arrow.size = 0.3, 
+     vertex.label = V(negative)$name, 
+     vertex.size = negative_degree*3)
+```
+ 
+<br>
+<br>
+<br>
+<br>
+<br>
+ 
+### `neighbors` function
+ 
+```{r}
+neigh.savva <- neighbors(negative, #name of the network
+                         V(negative)[name=="Savva"], #name of the node
+                         mode = "in") #mode: in (incoming), out (outcoming), all (both)
+
+V(negative)$color <- "white"
+V(negative)[neigh.savva]$color <- "orange"
+V(negative)["Savva"]$color <- "red"
+
+plot(negative,
+     edge.arrow.size = .2,
+     vertex.size = 30,
+     vertex.label.cex = .6)
+```
+
+<br>
+
+Savva's node is red; nodes of classmates who doesn't like him are orange. 
+
+<br>
+<br>
+<br>
+
+```{r}
+neigh.Lisa <- neighbors(help,
+                        V(help)[name=="Lisa"],
+                        mode = "in")
+
+V(help)$color <- "white"
+V(help)[neigh.Lisa]$color <- "skyblue"
+V(help)["Lisa"]$color <- "palegreen"
+
+plot(help,
+     edge.arrow.size = .2,
+     vertex.size = 30,
+     vertex.label.cex = .6)
+```
+
+<br>
+
+Lisa's node is blue; node of each person who asks her for help is green.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Community detection
+
+```{r}
+friendsUn <- as.undirected(friends, mode = "mutual")
+```
+
+<br>
+
+To perform some algorithms, it is necessary to transform network to undirected.
+
+<br>
+<br>
+<br>
+
+### Cluster Louvian method
+
+```{r}
+cl_louv <- cluster_louvain(friendsUn)
+```
+
+<br>
+
+```{r}
+modularity(cl_louv) %>% 
+  setNames(c("Modulatity (the strength of the community formation)")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+
+```{r}
+sizes_cl <- data.frame(sizes(cl_louv))
+sizes_cl %>% 
+  as.data.frame() %>% 
+  setNames(c("Ordinal number of the community", "Number of members")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+
+```
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+plot(cl_louv,
+     friendsUn,
+     col = membership(cl_louv),
+     mark.groups = communities(cl_louv),
+     edge.color = "grey",
+     vertex.label = V(friendsUn)$name,
+     vertex.label.cex = .6)
+```
+
+<br>
+<br>
+<br>
+
+### Edge betweenness method
+
+
+```{r}
+edge_between <- edge.betweenness.community(friendsUn)
+```
+
+<br>
+
+```{r}
+modularity(edge_between) %>% 
+  setNames(c("Modulatity")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+sizes_eb <- data.frame(sizes(edge_between))
+sizes_eb %>% 
+  as.data.frame() %>% 
+  setNames(c("Ordinal number of the community", "Number of members")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+plot(edge_between,
+     friendsUn,
+     col = membership(edge_between),
+     mark.groups = communities(edge_between),
+     edge.color = "grey",
+     vertex.label = V(friendsUn)$name,
+     vertex.label.cex = .6)
+```
+
+<br>
+<br>
+<br>
+
+### Fast Greedy algorithm
+
+
+```{r}
+fast_greedy <- fastgreedy.community(friendsUn)
+```
+
+<br>
+
+```{r}
+modularity(fast_greedy) %>% 
+  setNames(c("Modulatity")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+sizes_fg <- data.frame(sizes(edge_between))
+sizes_fg %>% 
+  as.data.frame() %>% 
+  setNames(c("Ordinal number of the community", "Number of members")) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Cambria")
+
+```
+
+<br>
+<br>
+<br>
+
+
+```{r, fig.height = 10, fig.width = 10}
+plot(fast_greedy,
+     friendsUn,
+     col = membership(fast_greedy),
+     mark.groups = communities(fast_greedy),
+     edge.color = "grey",
+     vertex.label = V(friendsUn)$name,
+     vertex.label.cex = .6)
+```
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Layouts
+
+<br>
+
+#### Types of layout:
+
+```{r}
+r <- layout_randomly(friends, dim = 2) #only random layout needs "dim" 
+c <- layout_in_circle(friends)
+gr <- layout_on_grid(friends)
+kk <- layout.kamada.kawai(friends)
+fr <- layout_with_fr(friends)
+```
+
+<br>
+<br>
+<br>
+
+#### Networks' settings:
+
+```{r}
+my_resolution = 100
+my_palette = colorRampPalette(c('blue','lightgreen'))
+
+degree = degree(friends, v = V(friends), mode = "in")
+my_colors = my_palette(my_resolution)[as.numeric(cut(degree, breaks = my_resolution))]
+```
+
+<br>
+<br>
+<br>
+
+### Random layout
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+plot(friends, layout = r, 
+     vertex.label = V(friends)$name, 
+     edge.arrow.size = 0.3, 
+     vertex.size = degree*4,
+     vertex.label.cex = 0.6,
+     vertex.label.color = 'black',
+     vertex.color = my_colors)
+```
+
+<br>
+<br>
+<br>
+
+### Circle layout
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+plot(friends, layout = c, 
+     vertex.label = V(friends)$name, 
+     edge.arrow.size = 0.3, 
+     vertex.size = degree*4,
+     vertex.label.cex = 0.6,
+     vertex.label.color = 'black',
+     vertex.color = my_colors)
+```
+
+<br>
+<br>
+<br>
+
+### Grid layout
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+plot(friends, layout = gr, 
+     vertex.label = V(friends)$name, 
+     edge.arrow.size = 0.3, 
+     vertex.size = degree*4,
+     vertex.label.cex = 0.6,
+     vertex.label.color = 'black',
+     vertex.color = my_colors)
+```
+
+<br>
+<br>
+<br>
+
+### Kamada-Kawai layout
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+plot(friends, layout = kk, 
+     vertex.label = V(friends)$name, 
+     edge.arrow.size = 0.3, 
+     vertex.size = degree*4,
+     vertex.label.cex = 0.6,
+     vertex.label.color = 'black',
+     vertex.color = my_colors)
+```
+
+<br>
+<br>
+<br>
+
+### Fruchteman-Reingold layout
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+plot(friends, layout = fr, 
+     vertex.label = V(friends)$name, 
+     edge.arrow.size = 0.3, 
+     vertex.size = degree*4,
+     vertex.label.cex = 0.6,
+     vertex.label.color = 'black',
+     vertex.color = my_colors)
+```
