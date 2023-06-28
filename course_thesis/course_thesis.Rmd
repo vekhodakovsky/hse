@@ -692,7 +692,7 @@ text(x = 1, y = mean_polit, labels = paste0(round(mean_polit, 2)), pos = 3)
 <br>
 <br>
 
-### Map of the Surveillance Attitude
+### Surveillance Attitude map
 
 ```{r}
 averages <- aggregate(surv ~ country, data = EVS, FUN = function(x) round(mean(x), 2)) 
@@ -705,16 +705,24 @@ averages %>%
 <br>
 
 ```{r, fig.height = 10, fig.width = 10}
-library(ggplot2)
 library(rnaturalearth)
-
 world <- ne_countries(scale = "medium", returnclass = "sf")
 colnames(averages)[1] <- "sovereignt"
-world <- merge(world, averages, by = "sovereignt")
+averages$sovereignt <- dplyr::recode(averages$sovereignt, 
+                              "Czechia" = "Czech Republic",
+                              "North Macedonia" = "Macedonia",
+                              "Great Britain" = "United Kingdom")
 
+world <- merge(world, averages, by = "sovereignt")
+```
+
+<br>
+
+```{r, fig.height = 10, fig.width = 10}
+library(ggplot2)
 ggplot(data = world) +
-    geom_sf(aes(fill = surv)) +
-    coord_sf(xlim = c(-12, 51), ylim = c(35.7, 72), expand = FALSE) +
+  geom_sf(aes(fill = surv)) +
+  coord_sf(xlim = c(-40, 51), ylim = c(35.7, 72), expand = FALSE) +
   scale_fill_gradient(low = "tomato2", high = "lightblue2") +
   labs(fill = "Surv") + ggtitle("Surveillance Attitude Index")
 ```
