@@ -1,0 +1,426 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    toc: true
+    toc_float: true
+    df_print: paged
+editor_options:
+    chink_output_type: console
+---
+
+<br>
+
+<div style="text-align: center;">
+<span class="h1">
+Python Basics
+</span>
+
+<span class="h5">
+Modern Social Analysis, HSE SPb<br>
+Python for Data Analysis
+</span>
+
+<span class="h4">
+Vasily Khodakovsky
+</span>
+</div>
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+
+library(reticulate)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Compute interest
+
+```{python}
+def compute_interest(P,r,t):
+    return round(P*(1+r/100)**t,1)
+```
+
+<br>
+
+```{python}
+input_interest_p = 1000
+input_interest_r = 12
+input_interest_t = 5
+input5 = (input_interest_p, input_interest_r, input_interest_t)
+interest = compute_interest(*input5)
+```
+
+<br>
+
+```{python}
+print(f"Formula: A = P(1+r/100)t\n\n"
+      f"P (The principal amount) = {input_interest_p}\n"
+      f"r (Interest rate, percent) = {input_interest_r}\n"
+      f"t (Time) = {input_interest_t}\n"
+      f"A (Result) = {interest}")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+### Scores of the team
+
+<br>
+
+The result of football matches are recorded in the collection. <br>
+That function takes the collection and counts the scores of the first team (3 scores for the win, 1 scores for the draw).
+
+```{python}
+input_scores = ["4:3", "1:2", "0:1", "3:1", "4:1", "3:2", "2:1", "2:1"]
+input_scores2 = [i.replace(':', '.') for i in input_scores]
+input_scores2 = [ float (i) for i in input_scores2]
+```
+
+<br>
+
+```{python}
+output_scores = 0
+for i in input_scores2:
+    if (int(i)) > round((i%1)*10):
+        output_scores = output_scores + 3
+    else:
+        if (int(i)) < round((i%1)*10):
+            output_scores = output_scores + 0
+        else: output_scores = output_scores + 1
+```
+
+<br>
+
+```{python}
+print(f"Results of the matches: {input_scores}\n"
+      f"Scores of the team: {output_scores}")            
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Positive and negative numbers
+
+<br>
+
+Given an array of integers. <br>
+The function returns an array, where the first element is the count of positive numbers, <br>
+and the second element is the sum of negative numbers.
+
+```{python}
+input_numbers = [1, 5, 7, 4, 12, 12, 14, -3, -2, -5, -120]
+```
+
+<br>
+
+```{python}
+positive_count = 0
+negative_sum = 0
+for i in input_numbers:
+    if i > 0:
+        positive_count += 1
+    if i < 0:
+        negative_sum += i
+```
+
+<br>
+
+```{python}
+if input_numbers == [] or input_numbers == [0]:
+    print(f"Input array: {input_numbers}\n")
+else:
+    print(f"Input array: {input_numbers}\n"
+          f"Count of positive numbers: {positive_count}\n"
+          f"Sum of negative numbers: {negative_sum}\n")  
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Name into initials
+
+```{python}
+input_name = "Paul Mccartney"
+```
+
+<br>
+
+```{python}
+name_list = input_name.split()
+initials = ""
+
+for i, name in enumerate(name_list):
+    initials += name[0].upper()
+    
+    if i < len(name_list) - 1:
+        initials += ". "
+
+initials += "."
+```
+
+<br>
+
+```{python}
+print(f"Name: {input_name}\n"
+      f"Initials: {initials}\n") 
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+### Wilson prime
+
+<br>
+
+Formula of the Wilson prime: <b><i>((P-1)!+1)/(P*P)</i></b>
+
+```{python}
+input_wp = 5
+```
+
+<br>
+
+```{python}
+import math
+P = float(input_wp)
+a_wp = (math.factorial(P-1)+1)/(P*P)
+b_wp = (int(a_wp))
+```
+
+<br>
+
+```{python}
+if a_wp == b_wp: print (input_wp, "is Wilson Prime")
+else: print (input_wp, "is not Wilson Prime")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Multiplication table
+
+```{python}
+def print_mult_tab():
+    for i in range(1, 11):
+        for j in range(1, 11):
+            print(i*j, end = "\t")
+        print()
+```
+
+<br> 
+
+```{python}
+print_mult_tab()
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+### Interweave
+
+<br>
+
+The function takes an arbitrary number of lists as parameters and returns one list containing all elements from the input lists.
+
+```{python}
+def interweave(*args):
+    if not all(isinstance(i, list) for i in args):
+        raise TypeError("Found a non-list in input. Only lists expected!")
+    
+    return [item for sublist in zip(*args) for item in sublist]
+```
+
+<br>
+
+```{python}
+input_interweave = ([1, 2, 3], [4 , 5, 6], [7, 8, 9], [10, 11, 12])
+output_interweave = interweave(*input_interweave)
+```
+
+<br>
+
+```{python}
+print(f"Input:{input_interweave}\n"
+      f"Output:{output_interweave}")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Transform
+
+<br>
+
+The function takes two strings as parameters and returns a list of integers. <br>
+Then it splits strings into words and converts these words to integers. <br>
+And finally, it returns a list which elements are the multiplication of the two integers at their respective positions in the lists.
+
+
+```{python}
+def transform(m, n):
+    m = list(map(int, m.split()))
+    n = list(map(int, n.split()))
+    return [a * b for a, b in zip(m, n)]
+```
+
+<br>
+
+```{python}
+input_transform = ("1 2 3", "4 5 6")
+output_transform = transform(*input_transform)
+```
+
+<br>
+
+```{python}
+print(f"Input: {input_transform}")
+print(f"Output: {output_transform}")
+```
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Tokenize
+
+<br>
+
+The function takes two arguments: <br>
+A text string and a `sentence` parameter with a default value of `False`. <br>
+If `sentence` is `True`, then the function outputs the text it received as input as a list, where elements are sentences from the given text. <br>
+If `sentence` is `False`, then the function produces a list where the elements are all used words in the text.
+
+```{python}
+def tokenize(s, sentence = False):
+    sep = ". " if sentence else " "
+    return [i.strip().rstrip(".").lower() for i in s.split(sep)]
+```
+
+<br>
+
+```{python}
+input_sentence = (
+    "Beautiful is better than ugly. "
+    "Explicit is better than implicit."
+)
+input_words = "hello world"
+output_sentence = tokenize(input_sentence, sentence = True)
+output_words = tokenize(input_words)
+```
+
+<br>
+
+```{python}
+print(f"Sentences:\n"
+      f"Input: {input_sentence}\n"
+      f"Output: {output_sentence}")
+```
+
+<br>
+
+```{python}
+print(f"Words:\n"
+      f"Input: {input_words}\n"
+      f"Output: {output_words}")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Detect ranges
+
+<br>
+
+The function takes a list of integers as a parameter. <br>
+Then it sorts this list and converts it to another list that uses pairs for all detected intervals. <br> 
+Example: _**3**_, _**4**_, _**5**_, _**6**_ are converted to _**(3, 6)**_. <br>
+Numbers that are not part of any interval are resulted as just single numbers. <br>
+The resulting list consists of these numbers and pairs (separated by commas).
+
+```{python}
+def ranges(lst):
+    sorted_list = sorted(set(lst))
+    intervals = []
+    
+    i = 0
+    while i < len(sorted_list):
+        start = sorted_list[i]
+        
+        while i+1 < len(sorted_list) and sorted_list[i+1] == sorted_list[i] + 1:
+            i += 1
+        
+        end = sorted_list[i]
+        
+        if start == end:
+            intervals.append(start)
+        else:
+            intervals.append((start, end))
+        
+        i += 1
+    
+    return intervals
+```
+
+<br>
+
+```{python}
+input_ranges = [2, 3, 4, 8, 15, 6, 7, 10, 14, 16]
+out_ranges = ranges(input_ranges)
+```
+
+<br>
+
+```{python}
+print(f"Input: {input_ranges}\n"
+      f"Output: {out_ranges}")
+```
+
+
