@@ -11,16 +11,16 @@ editor_options:
 <br>
 
 <div style="text-align: center;">
-<b><span class="h1">Causal Inference</span></b>
+<span class="h1">Causal Inference</span>
 
 <span class="h5">
-<b>Modern Social Analysis, HSE SPb<br></b>
-*Course:* <b>Quantitative Data Analysis</b>
+Modern Social Analysis, HSE SPb<br>
+*Course:* Quantitative Data Analysis
 </span>
 
-<span class="h4"><b>
+<span class="h4">
 Vasily Khodakovsky</span>
-</b></div>
+</div>
 
 
 ```{r setup, include=FALSE}

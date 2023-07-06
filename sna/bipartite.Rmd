@@ -13,13 +13,13 @@ editor_options:
 <br>
 
 <div style="text-align: center;">
-<span class="h1"><b>Bipartite networks</b></span>
+<span class="h1">Bipartite networks</span>
 
 <span class="h5">
-<b>Modern Social Analysis, HSE SPb</b><br>
-*Course:* <b>Social Network Analysis</b></span>
+Modern Social Analysis, HSE SPb<br>
+*Course:* Social Network Analysis</span>
 
-<span class="h4"><b>Vasily Khodakovsky</b></span>
+<span class="h4">Vasily Khodakovsky</span>
 </div>
 
 <br>

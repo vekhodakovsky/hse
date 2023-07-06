@@ -23,16 +23,16 @@ Sys.setlocale("LC_ALL", "English")
 <br>
 
 <div style="text-align: center;">
-<b><span class="h1">Poisson Models</span></b>
+<span class="h1">Poisson Models</span>
 
 <span class="h5">
-<b>Modern Social Analysis, HSE SPb</b><br>
-*Course:* <b>Quantitative Data Analysis</b>
+Modern Social Analysis, HSE SPb<br>
+*Course:* Quantitative Data Analysis
 </span>
 
-<span class="h4"><b>
+<span class="h4">
 Vasily Khodakovsky</span>
-</b></div>
+</div>
 
 <br>
 <br>

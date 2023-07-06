@@ -2863,6 +2863,8 @@ Analysis </span></p>
 <p><br> <br> <br> <br> <br></p>
 <div id="compute-interest" class="section level3">
 <h3>Compute interest</h3>
+<p><br></p>
+<p>That function calculates compute interest.</p>
 <pre class="python"><code>def compute_interest(P,r,t):
     return round(P*(1+r/100)**t,1)</code></pre>
 <p><br></p>
@@ -2885,12 +2887,53 @@ interest = compute_interest(*input5)</code></pre>
 ## A (Result) = 1762.3</code></pre>
 <p><br> <br> <br> <br> <br></p>
 </div>
+<div id="wilson-prime" class="section level3">
+<h3>Wilson prime</h3>
+<p><br></p>
+<p>The function shows is the input number - Wilson prime.</p>
+<p>Formula of the Wilson prime: <b><i>((P-1)!+1)/(P*P)</i></b></p>
+<pre class="python"><code>input_wp = 5</code></pre>
+<p><br></p>
+<pre class="python"><code>import math
+P = float(input_wp)
+a_wp = (math.factorial(P-1)+1)/(P*P)
+b_wp = (int(a_wp))</code></pre>
+<p><br></p>
+<pre class="python"><code>if a_wp == b_wp: print (input_wp, &quot;is a Wilson Prime&quot;)
+else: print (input_wp, &quot;is not a Wilson Prime&quot;)</code></pre>
+<pre><code>## 5 is a Wilson Prime</code></pre>
+<p><br> <br> <br> <br> <br></p>
+</div>
+<div id="positive-and-negative-numbers" class="section level3">
+<h3>Positive and negative numbers</h3>
+<p><br></p>
+<p>The function takes an array of integers, and returns the other one:
+<br> the first element in the output is the count of positive numbers,
+<br> and the second element is the sum of negative numbers.</p>
+<pre class="python"><code>input_numbers = [1, 5, 7, 4, 12, 12, 14, -3, -2, -5, -120]</code></pre>
+<p><br></p>
+<pre class="python"><code>positive_count = 0
+negative_sum = 0
+for i in input_numbers:
+    if i &gt; 0:
+        positive_count += 1
+    if i &lt; 0:
+        negative_sum += i</code></pre>
+<p><br></p>
+<pre class="python"><code>print(f&quot;Input: {input_numbers}\n&quot;
+      f&quot;Count of positive numbers: {positive_count}\n&quot;
+      f&quot;Sum of negative numbers: {negative_sum}\n&quot;)  </code></pre>
+<pre><code>## Input: [1, 5, 7, 4, 12, 12, 14, -3, -2, -5, -120]
+## Count of positive numbers: 7
+## Sum of negative numbers: -130</code></pre>
+<p><br> <br> <br> <br> <br></p>
+</div>
 <div id="scores-of-the-team" class="section level3">
 <h3>Scores of the team</h3>
 <p><br></p>
 <p>The result of football matches are recorded in the collection. <br>
-That function takes the collection and counts the scores of the first
-team (3 scores for the win, 1 scores for the draw).</p>
+That function counts the scores of the first team (3 scores for the win,
+1 scores for the draw).</p>
 <pre class="python"><code>input_scores = [&quot;4:3&quot;, &quot;1:2&quot;, &quot;0:1&quot;, &quot;3:1&quot;, &quot;4:1&quot;, &quot;3:2&quot;, &quot;2:1&quot;, &quot;2:1&quot;]
 input_scores2 = [i.replace(&#39;:&#39;, &#39;.&#39;) for i in input_scores]
 input_scores2 = [ float (i) for i in input_scores2]</code></pre>
@@ -2910,100 +2953,34 @@ for i in input_scores2:
 ## Scores of the team: 18</code></pre>
 <p><br> <br> <br> <br> <br></p>
 </div>
-<div id="positive-and-negative-numbers" class="section level3">
-<h3>Positive and negative numbers</h3>
+<div id="transform" class="section level3">
+<h3>Transform</h3>
 <p><br></p>
-<p>Given an array of integers. <br> The function returns an array, where
-the first element is the count of positive numbers, <br> and the second
-element is the sum of negative numbers.</p>
-<pre class="python"><code>input_numbers = [1, 5, 7, 4, 12, 12, 14, -3, -2, -5, -120]</code></pre>
+<p>The function takes two strings as parameters and returns a list of
+integers. <br> Then it splits strings into words and converts these
+words to integers. <br> And finally, it returns a list which elements
+are the multiplication of the two integers <br> at their respective
+positions in the lists.</p>
+<pre class="python"><code>def transform(m, n):
+    m = list(map(int, m.split()))
+    n = list(map(int, n.split()))
+    return [a * b for a, b in zip(m, n)]</code></pre>
 <p><br></p>
-<pre class="python"><code>positive_count = 0
-negative_sum = 0
-for i in input_numbers:
-    if i &gt; 0:
-        positive_count += 1
-    if i &lt; 0:
-        negative_sum += i</code></pre>
+<pre class="python"><code>input_transform = (&quot;1 2 3&quot;, &quot;4 5 6&quot;)
+output_transform = transform(*input_transform)</code></pre>
 <p><br></p>
-<pre class="python"><code>if input_numbers == [] or input_numbers == [0]:
-    print(f&quot;Input array: {input_numbers}\n&quot;)
-else:
-    print(f&quot;Input array: {input_numbers}\n&quot;
-          f&quot;Count of positive numbers: {positive_count}\n&quot;
-          f&quot;Sum of negative numbers: {negative_sum}\n&quot;)  </code></pre>
-<pre><code>## Input array: [1, 5, 7, 4, 12, 12, 14, -3, -2, -5, -120]
-## Count of positive numbers: 7
-## Sum of negative numbers: -130</code></pre>
-<p><br> <br> <br> <br> <br></p>
-</div>
-<div id="name-into-initials" class="section level3">
-<h3>Name into initials</h3>
-<pre class="python"><code>input_name = &quot;Paul Mccartney&quot;</code></pre>
-<p><br></p>
-<pre class="python"><code>name_list = input_name.split()
-initials = &quot;&quot;
-
-for i, name in enumerate(name_list):
-    initials += name[0].upper()
-    
-    if i &lt; len(name_list) - 1:
-        initials += &quot;. &quot;
-
-initials += &quot;.&quot;</code></pre>
-<p><br></p>
-<pre class="python"><code>print(f&quot;Name: {input_name}\n&quot;
-      f&quot;Initials: {initials}\n&quot;) </code></pre>
-<pre><code>## Name: Paul Mccartney
-## Initials: P. M.</code></pre>
-<p><br> <br> <br> <br> <br></p>
-</div>
-<div id="wilson-prime" class="section level3">
-<h3>Wilson prime</h3>
-<p><br></p>
-<p>Formula of the Wilson prime: <b><i>((P-1)!+1)/(P*P)</i></b></p>
-<pre class="python"><code>input_wp = 5</code></pre>
-<p><br></p>
-<pre class="python"><code>import math
-P = float(input_wp)
-a_wp = (math.factorial(P-1)+1)/(P*P)
-b_wp = (int(a_wp))</code></pre>
-<p><br></p>
-<pre class="python"><code>if a_wp == b_wp: print (input_wp, &quot;is Wilson Prime&quot;)
-else: print (input_wp, &quot;is not Wilson Prime&quot;)</code></pre>
-<pre><code>## 5 is Wilson Prime</code></pre>
-<p><br> <br> <br> <br> <br></p>
-</div>
-<div id="multiplication-table" class="section level3">
-<h3>Multiplication table</h3>
-<pre class="python"><code>def print_mult_tab():
-    for i in range(1, 11):
-        for j in range(1, 11):
-            print(i*j, end = &quot;\t&quot;)
-        print()</code></pre>
-<p><br></p>
-<pre class="python"><code>print_mult_tab()</code></pre>
-<pre><code>## 1    2   3   4   5   6   7   8   9   10  
-## 2    4   6   8   10  12  14  16  18  20  
-## 3    6   9   12  15  18  21  24  27  30  
-## 4    8   12  16  20  24  28  32  36  40  
-## 5    10  15  20  25  30  35  40  45  50  
-## 6    12  18  24  30  36  42  48  54  60  
-## 7    14  21  28  35  42  49  56  63  70  
-## 8    16  24  32  40  48  56  64  72  80  
-## 9    18  27  36  45  54  63  72  81  90  
-## 10   20  30  40  50  60  70  80  90  100 </code></pre>
+<pre class="python"><code>print(f&quot;Input: {input_transform}\n&quot;
+      f&quot;Output: {output_transform}&quot;)</code></pre>
+<pre><code>## Input: (&#39;1 2 3&#39;, &#39;4 5 6&#39;)
+## Output: [4, 10, 18]</code></pre>
 <p><br> <br> <br> <br> <br></p>
 </div>
 <div id="interweave" class="section level3">
 <h3>Interweave</h3>
 <p><br></p>
-<p>The function takes an arbitrary number of lists as parameters and
-returns one list containing all elements from the input lists.</p>
+<p>The function takes an arbitrary number of lists as parameters <br>
+and returns one list containing all elements from the input lists.</p>
 <pre class="python"><code>def interweave(*args):
-    if not all(isinstance(i, list) for i in args):
-        raise TypeError(&quot;Found a non-list in input. Only lists expected!&quot;)
-    
     return [item for sublist in zip(*args) for item in sublist]</code></pre>
 <p><br></p>
 <pre class="python"><code>input_interweave = ([1, 2, 3], [4 , 5, 6], [7, 8, 9], [10, 11, 12])
@@ -3015,71 +2992,12 @@ output_interweave = interweave(*input_interweave)</code></pre>
 ## Output:[1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12]</code></pre>
 <p><br> <br> <br> <br> <br></p>
 </div>
-<div id="transform" class="section level3">
-<h3>Transform</h3>
-<p><br></p>
-<p>The function takes two strings as parameters and returns a list of
-integers. <br> Then it splits strings into words and converts these
-words to integers. <br> And finally, it returns a list which elements
-are the multiplication of the two integers at their respective positions
-in the lists.</p>
-<pre class="python"><code>def transform(m, n):
-    m = list(map(int, m.split()))
-    n = list(map(int, n.split()))
-    return [a * b for a, b in zip(m, n)]</code></pre>
-<p><br></p>
-<pre class="python"><code>input_transform = (&quot;1 2 3&quot;, &quot;4 5 6&quot;)
-output_transform = transform(*input_transform)</code></pre>
-<p><br></p>
-<pre class="python"><code>print(f&quot;Input: {input_transform}&quot;)</code></pre>
-<pre><code>## Input: (&#39;1 2 3&#39;, &#39;4 5 6&#39;)</code></pre>
-<pre class="python"><code>print(f&quot;Output: {output_transform}&quot;)</code></pre>
-<pre><code>## Output: [4, 10, 18]</code></pre>
-<p><br> <br> <br> <br> <br></p>
-</div>
-<div id="tokenize" class="section level3">
-<h3>Tokenize</h3>
-<p><br></p>
-<p>The function takes two arguments: <br> A text string and a
-<code>sentence</code> parameter with a default value of
-<code>False</code>. <br> If <code>sentence</code> is <code>True</code>,
-then the function outputs the text it received as input as a list, where
-elements are sentences from the given text. <br> If
-<code>sentence</code> is <code>False</code>, then the function produces
-a list where the elements are all used words in the text.</p>
-<pre class="python"><code>def tokenize(s, sentence = False):
-    sep = &quot;. &quot; if sentence else &quot; &quot;
-    return [i.strip().rstrip(&quot;.&quot;).lower() for i in s.split(sep)]</code></pre>
-<p><br></p>
-<pre class="python"><code>input_sentence = (
-    &quot;Beautiful is better than ugly. &quot;
-    &quot;Explicit is better than implicit.&quot;
-)
-input_words = &quot;hello world&quot;
-output_sentence = tokenize(input_sentence, sentence = True)
-output_words = tokenize(input_words)</code></pre>
-<p><br></p>
-<pre class="python"><code>print(f&quot;Sentences:\n&quot;
-      f&quot;Input: {input_sentence}\n&quot;
-      f&quot;Output: {output_sentence}&quot;)</code></pre>
-<pre><code>## Sentences:
-## Input: Beautiful is better than ugly. Explicit is better than implicit.
-## Output: [&#39;beautiful is better than ugly&#39;, &#39;explicit is better than implicit&#39;]</code></pre>
-<p><br></p>
-<pre class="python"><code>print(f&quot;Words:\n&quot;
-      f&quot;Input: {input_words}\n&quot;
-      f&quot;Output: {output_words}&quot;)</code></pre>
-<pre><code>## Words:
-## Input: hello world
-## Output: [&#39;hello&#39;, &#39;world&#39;]</code></pre>
-<p><br> <br> <br> <br> <br></p>
-</div>
 <div id="detect-ranges" class="section level3">
 <h3>Detect ranges</h3>
 <p><br></p>
-<p>The function takes a list of integers as a parameter. <br> Then it
-sorts this list and converts it to another list that uses pairs for all
-detected intervals. <br> Example: <em><strong>3</strong></em>,
+<p>The function takes a list of integers. <br> Then it sorts this list
+and converts it to another list that uses pairs for all detected
+intervals. <br> Example: <em><strong>3</strong></em>,
 <em><strong>4</strong></em>, <em><strong>5</strong></em>,
 <em><strong>6</strong></em> are converted to <em><strong>(3,
 6)</strong></em>. <br> Numbers that are not part of any interval are
@@ -3114,6 +3032,88 @@ out_ranges = ranges(input_ranges)</code></pre>
       f&quot;Output: {out_ranges}&quot;)</code></pre>
 <pre><code>## Input: [2, 3, 4, 8, 15, 6, 7, 10, 14, 16]
 ## Output: [(2, 4), (6, 8), 10, (14, 16)]</code></pre>
+<p><br> <br> <br> <br> <br></p>
+</div>
+<div id="multiplication-table" class="section level3">
+<h3>Multiplication table</h3>
+<p><br></p>
+<p>This function prints multiplication table.</p>
+<pre class="python"><code>def print_mult_tab():
+    for i in range(1, 11):
+        for j in range(1, 11):
+            print(i*j, end = &quot;\t&quot;)
+        print()</code></pre>
+<p><br></p>
+<pre class="python"><code>print_mult_tab()</code></pre>
+<pre><code>## 1    2   3   4   5   6   7   8   9   10  
+## 2    4   6   8   10  12  14  16  18  20  
+## 3    6   9   12  15  18  21  24  27  30  
+## 4    8   12  16  20  24  28  32  36  40  
+## 5    10  15  20  25  30  35  40  45  50  
+## 6    12  18  24  30  36  42  48  54  60  
+## 7    14  21  28  35  42  49  56  63  70  
+## 8    16  24  32  40  48  56  64  72  80  
+## 9    18  27  36  45  54  63  72  81  90  
+## 10   20  30  40  50  60  70  80  90  100 </code></pre>
+<p><br> <br> <br> <br> <br></p>
+</div>
+<div id="name-into-initials" class="section level3">
+<h3>Name into initials</h3>
+<p><br></p>
+<p>This function shows the initials of the given name.</p>
+<pre class="python"><code>input_name = &quot;Paul Mccartney&quot;</code></pre>
+<p><br></p>
+<pre class="python"><code>name_list = input_name.split()
+initials = &quot;&quot;
+
+for i, name in enumerate(name_list):
+    initials += name[0].upper()
+    
+    if i &lt; len(name_list) - 1:
+        initials += &quot;. &quot;
+
+initials += &quot;.&quot;</code></pre>
+<p><br></p>
+<pre class="python"><code>print(f&quot;Name: {input_name}\n&quot;
+      f&quot;Initials: {initials}\n&quot;) </code></pre>
+<pre><code>## Name: Paul Mccartney
+## Initials: P. M.</code></pre>
+<p><br> <br> <br> <br> <br></p>
+</div>
+<div id="tokenize" class="section level3">
+<h3>Tokenize</h3>
+<p><br></p>
+<p>This function takes the two inputs: <br> 1) Text <br> 2) Boolean
+value for the <code>sentence</code> parameter.</p>
+<pre class="python"><code>def tokenize(s, sentence = False):
+    sep = &quot;. &quot; if sentence else &quot; &quot;
+    return [i.strip().rstrip(&quot;.&quot;).lower() for i in s.split(sep)]</code></pre>
+<p><br></p>
+<pre class="python"><code>input_text = (
+    &quot;Beautiful is better than ugly. &quot;
+    &quot;Explicit is better than implicit.&quot;
+)</code></pre>
+<p><br> <br> <br></p>
+<p>If <code>sentence</code> is <code>True</code>, then the function
+outputs the text it received as input as a list, <br> where elements are
+sentences from the given text:</p>
+<pre class="python"><code>input_sentence = True
+output_text = tokenize(input_text, sentence = input_sentence)</code></pre>
+<p><br></p>
+<pre class="python"><code>print(f&quot;Input: {input_text}\n&quot;
+      f&quot;Output: {output_text}&quot;)</code></pre>
+<pre><code>## Input: Beautiful is better than ugly. Explicit is better than implicit.
+## Output: [&#39;beautiful is better than ugly&#39;, &#39;explicit is better than implicit&#39;]</code></pre>
+<p><br> <br> <br></p>
+<p>If <code>sentence</code> is <code>False</code>, then the function
+produces a list where the elements are all used words in the text:</p>
+<pre class="python"><code>input_sentence = False
+output_text = tokenize(input_text, sentence = input_sentence)</code></pre>
+<p><br></p>
+<pre class="python"><code>print(f&quot;Input: {input_text}\n&quot;
+      f&quot;Output: {output_text}&quot;)</code></pre>
+<pre><code>## Input: Beautiful is better than ugly. Explicit is better than implicit.
+## Output: [&#39;beautiful&#39;, &#39;is&#39;, &#39;better&#39;, &#39;than&#39;, &#39;ugly&#39;, &#39;explicit&#39;, &#39;is&#39;, &#39;better&#39;, &#39;than&#39;, &#39;implicit&#39;]</code></pre>
 </div>
 
 
