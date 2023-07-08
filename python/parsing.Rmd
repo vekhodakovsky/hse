@@ -69,8 +69,12 @@ import pandas as pd
 
 ### Parsing parameters
 
+<br>
+
+#### Cross-links of wikipedia pages of the "Italian Renaissance sculptors" category
+
 ```{python}
-url = 'https://en.wikipedia.org/wiki/Category:Python_(programming_language)'
+url = 'https://en.wikipedia.org/wiki/Category:Italian_Renaissance_sculptors'
 ```
 
 <br>
@@ -120,7 +124,7 @@ df_pages['page_id'] = df_pages.index + 1
 #### Creating the square-shaped DataFrame with cross-links
 
 ```{python}
-crosslinks = pd.DataFrame(index = df_pages['page_id'], columns = df_pages['page_id']).fillna(0)
+df_crosslinks = pd.DataFrame(index=df_pages['page_id'], columns=df_pages['page_id']).fillna(0)
 ```
 
 <br>
@@ -130,7 +134,7 @@ for _, row in df_pages.iloc[1:].iterrows():
     page_1_id = row['page_id']
     page_1_url = row['page_1_url']
     page_1_soup = BeautifulSoup(
-      requests.get('https://ru.wikipedia.org' + page_1_url).content,
+      requests.get('https://en.wikipedia.org' + page_1_url).content, 
       'html.parser')
     links = page_1_soup.find_all('a')
     for link in links:
@@ -139,7 +143,7 @@ for _, row in df_pages.iloc[1:].iterrows():
             page_2_name = link.text
             if page_2_url in df_pages['page_1_url'].values and page_2_url != page_1_url:
                 page_2_id = df_pages.loc[df_pages['page_1_url'] == page_2_url, 'page_id'].iloc[0]
-                crosslinks.loc[page_1_id, page_2_id] = 1
+                df_crosslinks.loc[page_1_id, page_2_id] = 1
 ```
 
 <br>
@@ -166,7 +170,7 @@ print(df_pages)
 #### Crosslinks
 
 ```{python}
-print(crosslinks.iloc[:, -10:])
+print(df_crosslinks.iloc[:, -10:])
 ```
 
 <br>
@@ -201,7 +205,7 @@ import matplotlib.pyplot as plt
 ### Graph object parameters
 
 ```{python}
-matrix_crosslinks = crosslinks.values
+matrix_crosslinks = df_crosslinks.values
 ```
 
 <br>
@@ -240,8 +244,8 @@ closeness = nx.closeness_centrality(G)
 <br>
 
 ```{python}
-data = {'Node': list(G.nodes()), 'Degree Centrality': list(degree.values()),
-        'Closeness Centrality': list(closeness.values())}
+data = {'Node': list(G.nodes()), 'Name': list(df_pages['page_1_name']),
+        'Degree': list(degree.values()), 'Closeness': list(closeness.values())}
 centrality_df = pd.DataFrame(data)
 ```
 
@@ -262,7 +266,7 @@ plt.figure(figsize = (10, 10))
 <br>
 
 ```{python, results = "hide"}
-nx.draw_networkx(G, nx.shell_layout(G), 
+nx.draw_networkx(G, nx.circular_layout(G), 
                     with_labels = True, 
                     font_size = 8,
                     node_color = 'aquamarine', 
