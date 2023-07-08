@@ -1,0 +1,281 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    toc: true
+    toc_float: true
+editor_options:
+    chink_output_type: console
+---
+
+<br>
+
+<div style="text-align: center;">
+<span class="h1">
+Parsing & Network
+</span>
+
+<span class="h5">
+Modern Social Analysis, HSE SPb<br>
+Python for Data Analysis
+</span>
+
+<span class="h4">
+Vasily Khodakovsky
+</span>
+</div>
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+
+library(reticulate)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Parsing
+
+<br>
+
+### Packages
+
+```{python}
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Parsing parameters
+
+```{python}
+url = 'https://en.wikipedia.org/wiki/Category:Python_(programming_language)'
+```
+
+<br>
+
+```{python}
+response = requests.get(url)
+soup = BeautifulSoup(response.content, 'html.parser')
+```
+
+<br>
+<br>
+<br>
+
+#### Extracting cross-links from the category page
+
+```{python}
+data = []
+table = soup.find('div', {'id': 'mw-pages'})
+links = table.find_all('a')
+```
+
+<br>
+
+```{python}
+for link in links:
+    page_1_name = link.text
+    page_1_url = link['href']
+    if page_1_url.startswith('/wiki/') and not page_1_name.startswith('This list may not'):
+        data.append({'page_1_name': page_1_name, 'page_1_url': page_1_url})
+```
+
+<br>
+<br>
+<br>
+
+#### Creating the DataFrame with page URLs and IDs
+
+```{python}
+df_pages = pd.DataFrame(data)
+df_pages['page_id'] = df_pages.index + 1
+```
+
+<br>
+<br>
+<br>
+
+#### Creating the square-shaped DataFrame with cross-links
+
+```{python}
+crosslinks = pd.DataFrame(index = df_pages['page_id'], columns = df_pages['page_id']).fillna(0)
+```
+
+<br>
+
+```{python}
+for _, row in df_pages.iloc[1:].iterrows():
+    page_1_id = row['page_id']
+    page_1_url = row['page_1_url']
+    page_1_soup = BeautifulSoup(
+      requests.get('https://ru.wikipedia.org' + page_1_url).content,
+      'html.parser')
+    links = page_1_soup.find_all('a')
+    for link in links:
+        if link.has_attr('href') and link['href'].startswith('/wiki/'):
+            page_2_url = link['href']
+            page_2_name = link.text
+            if page_2_url in df_pages['page_1_url'].values and page_2_url != page_1_url:
+                page_2_id = df_pages.loc[df_pages['page_1_url'] == page_2_url, 'page_id'].iloc[0]
+                crosslinks.loc[page_1_id, page_2_id] = 1
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Dataframes
+
+<br>
+
+#### Names of the pages
+
+```{python}
+df_pages = df_pages[['page_id', 'page_1_name']]
+print(df_pages)
+```
+
+<br>
+<br>
+<br>
+
+#### Crosslinks
+
+```{python}
+print(crosslinks.iloc[:, -10:])
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Network
+
+<br>
+
+### Packages
+
+```{python}
+import networkx as nx
+import matplotlib.pyplot as plt
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Graph object parameters
+
+```{python}
+matrix_crosslinks = crosslinks.values
+```
+
+<br>
+
+```{python}
+G = nx.Graph()
+num_nodes = matrix_crosslinks.shape[0]
+nodes = range(1, num_nodes+1)
+G.add_nodes_from(nodes)
+```
+
+<br>
+
+#### Adding edges to the graph based on the matrix
+
+```{python}
+for i in range(num_nodes):
+    for j in range(num_nodes):
+        if matrix_crosslinks[i][j] == 1:
+            G.add_edge(i+1, j+1)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Centrality
+
+```{python}
+degree = nx.degree_centrality(G)
+closeness = nx.closeness_centrality(G)
+```
+
+<br>
+
+```{python}
+data = {'Node': list(G.nodes()), 'Degree Centrality': list(degree.values()),
+        'Closeness Centrality': list(closeness.values())}
+centrality_df = pd.DataFrame(data)
+```
+
+<br>
+
+```{python}
+print(centrality_df)
+```
+
+<br>
+
+### Visualization
+
+```{python, results = "hide"}
+plt.figure(figsize = (10, 10))
+```
+
+<br>
+
+```{python, results = "hide"}
+nx.draw_networkx(G, nx.shell_layout(G), 
+                    with_labels = True, 
+                    font_size = 8,
+                    node_color = 'aquamarine', 
+                    node_size = [degree[node] * 1000 for node in G.nodes()], 
+                    edge_color = 'black', 
+                    width = 0.5)
+plt.axis('off')
+```
+
+<br>
+
+```{python}
+plt.show()
+```
+
+
