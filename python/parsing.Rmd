@@ -218,6 +218,8 @@ G.add_nodes_from(nodes)
 ```
 
 <br>
+<br>
+<br>
 
 #### Adding edges to the graph based on the matrix
 
@@ -255,6 +257,8 @@ centrality_df = pd.DataFrame(data)
 print(centrality_df)
 ```
 
+<br>
+<br>
 <br>
 
 ### Visualization
