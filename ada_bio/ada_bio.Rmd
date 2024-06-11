@@ -1,0 +1,922 @@
+---
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    toc: true
+    toc_float: true
+    df_print: paged
+editor_options:
+    chink_output_type: console
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+```{r include=FALSE}
+Sys.setlocale("LC_ALL", "English")
+```
+
+<br>
+
+<div style="text-align: center;">
+<span class="h1">Transfer of clinically relevant gene expression signatures in breast cancer: from Affymetrix microarray to Illumina RNA-Sequencing technology
+</span>
+
+<span class="h5">
+Sociology and Social Research, UniTN<br>
+*Course:* Advanced Data Analysis (in Biology) [146044] - Final Project
+</span>
+
+<span class="h4">
+Vasily Khodakovsky
+</span>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Packages
+
+<br>
+
+```{r}
+library(ggplot2)
+library(stringr)
+library(tidyverse)
+library(edgeR)
+library(biomaRt)
+library(hgu133a.db)
+library(GEOquery)
+library(ROCR)
+library(ALL)
+library(dplyr)
+library(randomForest) 
+library(RColorBrewer)
+library(genefilter)
+library(useful)
+library(MASS)
+library(pROC)
+library(caret)
+library(e1071)
+library(igraph)
+library(rScudo)
+library(glmnet)
+library(cluster)
+library(factoextra)
+library(gprofiler2) 
+library(KEGGREST)
+library(KEGGgraph)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Data
+
+<br>
+
+Fumagalli D, Blanchet-Cohen A, Brown D, Desmedt C et al. Transfer of clinically relevant gene expression signatures in breast cancer: from Affymetrix microarray to Illumina RNA-Sequencing technology. BMC Genomics 2014 Nov 21;15:1008. PMID: 25412710. Fumagalli D, Gacquer D, Rothé F, Lefort A et al. Principles Governing A-to-I RNA Editing in the Breast Cancer Transcriptome. Cell Rep 2015 Oct 13;13(2):277-89. PMID: 26440892 <br>
+Link: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc%20=%20GSE43358
+
+<br>
+
+```{r}
+set.seed(1)
+
+gse <- getGEO('GSE43358', destdir = '.', getGPL = FALSE)
+gse <- gse[[1]]
+
+summary(gse)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+ex <- exprs(gse)
+ex2 <- log2(ex)
+
+dim(ex)
+```
+
+Number of genes: 54675.
+
+Number of samples: 57.
+
+<br>
+<br>
+<br>
+
+```{r}
+colnames(ex)
+```
+
+<br>
+<br>
+<br>
+
+#### Summary:
+
+```{r}
+summary(ex)
+```
+
+<br>
+
+```{r}
+summary(ex2)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+#### Distribution:
+
+```{r}
+par(mfrow = c(1, 2))
+
+hist(ex, 
+     col = "grey80", 
+     xlim = c(0, 20), 
+     ylim = c(0, 400000), 
+     cex.axis = 0.8, 
+     main = 'Non-logarithmed data')
+
+hist(ex2, 
+     col = "grey50", 
+     xlim = c(1, 4), 
+     ylim = c(0, 250000), 
+     cex.axis = 0.7, 
+     main = 'Logarithmed data')
+```
+
+The x-axis represents the gene expression values, while the y-axis represents the frequency of occurrence of each value. 
+
+The histogram on the left shows that the distribution of non-logarithmed data is skewed, with a long tail of high expression values. The histogram on the right (log2-transformed data) demonstrates more normal distribution, with a peak around 2.2.
+
+<br>
+<br>
+<br>
+
+```{r}
+par(mfrow = c(1, 2))
+boxplot(ex, xaxt = "n", ylim = c(2, 16), main = 'Boxplot of non-logarithmed data')
+boxplot(ex2, xaxt = "n", ylim = c(1, 4), main = 'Boxplot of logarithmed data')
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+par(mfrow = c(1, 1))
+ex2 <- na.omit(as.matrix(ex2))
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Analysis
+
+<br>
+
+## PCA
+
+```{r}
+pca <- prcomp(t(ex2))
+summary(pca)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+screeplot(pca, ylim = c(0, 160), main = "PCA")
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+grpcol <- c(rep("aquamarine", 5), 
+            rep("red3", 5), 
+            rep("lightgreen", 5), 
+            rep("yellow", 5), 
+            rep("coral", 3), 
+            rep("magenta", 5), 
+            rep("wheat", 5) )
+
+plot(pca$x[, 1], 
+     pca$x[, 2], 
+     pch = 10, 
+     col = grpcol, 
+     type = "p", 
+     xlab = "PCA1", 
+     ylab = "PCA2", 
+     main = "PCA for components 1 and 2")
+
+text(pca$x[, 1], 
+     pca$x[, 2], 
+     rownames(pca$x), 
+     cex = 0.75) 
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## Clustering
+
+<br>
+
+### Elbow plot
+
+```{r}
+fviz_nbclust(t(ex2), kmeans, method = "wss")
+```
+
+<br>
+<br>
+<br>
+
+### Hierarchical clusterisation
+
+```{r}
+dist_matrix <- dist(t(ex2))
+hc_result <- hclust(dist_matrix, method = "ave")
+k <- 4
+groups <- cutree(hc_result, k = k)
+
+table(groups)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+plot(hc_result, hang <- -1, labels = groups, sub = "")
+rect.hclust(hc_result, k = 4)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### K-means
+
+```{r}
+kmeans_result <- kmeans(t(ex2), k)
+table(kmeans_result$cluster)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+plot(kmeans_result, data = t(ex2)) + geom_text(aes(label = colnames(ex2)), 
+                                               hjust = 0, 
+                                               vjust = 0) 
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## Random forest
+
+<br>
+
+#### Recoding values:
+
+```{r}
+table(gse$characteristics_ch1)
+```
+
+<br>
+
+```{r}
+gse$characteristics_ch1 <- dplyr::recode(gse$characteristics_ch1, 
+                                         "er: 0" = "er0", 
+                                         "er: 1" = "er1")
+table(gse$characteristics_ch1)
+```
+
+er0 - gene expression in illumina RNA sequencing.
+
+er1 - gene expression in affymetrix microarray.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Classification, in order
+
+```{r}
+ffun <- filterfun(pOverA(0.20, 0.0))
+
+t.fil <- genefilter(ex, ffun)
+small.eset <- log2(ex2[t.fil, ])
+```
+
+<br>
+
+```{r}
+group <- c(grep('er0', na.omit(gse$characteristics_ch1)), 
+           grep('er1', na.omit(gse$characteristics_ch1))) 
+
+rf <- randomForest(x = t(small.eset), y = as.factor(group), ntree = 1000)
+```
+
+<br>
+<br>
+<br>
+
+### Trivial test
+
+```{r}
+predict(rf, t(small.eset[, 1:5]))
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+plot(sort(rf$importance, decreasing = TRUE), ylab = 'Importance', 
+     main = 'Graph of sorted importance values')
+```
+
+<br>
+<br>
+<br>
+
+### Variable importance
+
+```{r}
+imp.temp <- abs(rf$importance[, ])
+
+t <- order(imp.temp, decreasing = TRUE)
+
+plot(c(1:nrow(small.eset)), 
+     imp.temp[t], log = 'x', 
+     cex.main = 1.5, 
+     xlab = 'Gene rank', 
+     ylab = 'Variable importance', 
+     cex.lab = 1.5, 
+     pch = 16, 
+     main = 'ALL subset results')
+```
+
+Random forest is a ML algorithm used to classify samples based on their gene expression profiles. In this case, the RF was trained on a subset of the gene expression data, and then used to predict the class labels of the remaining samples.
+
+The training data consisted of a matrix of log2-transformed gene expression values for a subset of the genes, and a vector of class labels indicating whether each sample belonged to one of two experimental conditions (er0 or er1). 
+
+The variable importance plot shows the importance of each gene in the random forest model. The importance of each gene was calculated based on the decrease in accuracy of the model when that gene was removed. 
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+#### Getting subset of expression values for 25 most "important" genes:
+
+```{r}
+gn.imp <- names(imp.temp)[t]
+gn.25 <- gn.imp[1:25]
+t <- is.element(rownames(small.eset), gn.25)
+sig.eset <- small.eset[t, ]
+```
+
+<br>
+<br>
+<br>
+
+### Heatmap
+
+```{r}
+hmcol <- colorRampPalette(brewer.pal(11, "PuOr"))(256)
+colnames(sig.eset) <- group
+csc <- rep(hmcol[50], 30)
+csc[group == 'T'] <- hmcol[200]
+heatmap(sig.eset, scale = "row", col = hmcol, ColSideColors = csc)
+```
+
+The heatmap shows the gene expression values that were analyzed using both Affymetrix microarray and Illumina RNA-Sequencing technologies.
+
+The rows of the heatmap represent the genes, and the columns represent the samples. The color of each cell in the heatmap represents the expression value of a gene in a sample, with red indicating high expression and blue indicating low expression. This plot also identifies groups of genes that have similar expression patterns.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## LDA + ROC Curve
+
+<br>
+
+### Parameters
+
+```{r}
+ex2 <- ex[, 1:40]
+
+f <- factor(c(rep("er0", 20), rep("er1", 20)))
+
+tt40 <- rowttests(ex2, f)
+
+keepers <- which(tt40$p.value < 0.05)
+ex3 <- ex2[keepers, ]
+tex3 <- t(ex3)
+dat <- cbind(as.data.frame(tex3), f)
+
+colnames(dat)[ncol(dat)] <- "ML"
+n.dols <- 20
+n.ins <- 20
+train <- sample(1:(n.dols), (n.dols - 5))
+test <- setdiff(1:(n.dols), train)
+test <- c(test, test + 20)
+train <- c(train, train + 20)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Training
+
+```{r}
+mod <- lda(ML ~ ., data = dat, prior = c(0.5, 0.5), 
+subset = train)
+plot(mod)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+mod.values <- predict(mod, dat[train, ])
+mod.values$class
+```
+
+<br>
+
+```{r}
+plot(mod.values$x[, 1], ylab = c("LDA Axis:"))
+text(mod.values$x[, 1], 
+col = c(as.numeric(dat[train, "ML"]) + 10))
+```
+
+The LDA model is trained on a subset of the data using the first 40 columns of the data matrix "ex3" as input features and the class labels defined by the factor "f". 
+
+The graph shows the position of each sample in the two-dimensional space defined by the first two discriminant axes. The x-axis shows the position of each sample along the first discriminant axis, while the y-axis shows the position of each sample along the second discriminant axis. 
+
+The er0 class is light-green on this plot, while the er1 is light-blue.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Predicting
+
+```{r}
+preds <- predict(mod, dat[test, ])
+preds$class
+table(as.numeric(preds$class), 
+      as.numeric(dat[test, "ML"]) )
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### ROC plot
+
+```{r}
+roc_lda <- plot.roc(as.numeric(preds$class), 
+                    as.numeric(dat[test, "ML"]) )
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Cross-validation
+
+<br>
+
+Cross-validation is a resampling technique used to assess the performance and generalization ability of a predictive model.
+
+<br>
+<br>
+<br>
+
+#### 10-fold cross validation (One time):
+
+```{r}
+control <- trainControl(method = "cv", number = 10)
+
+fit.lda <- train(ML~., data = dat, method = "lda", 
+                 metric = "Accuracy", trControl = control)
+fit.rf <- train(ML~., data = dat, method = "rf", 
+                metric = "Accuracy", trControl = control)
+
+results <- resamples(list(LDA = fit.lda, RF = fit.rf))
+summary(results)
+```
+
+<br>
+
+```{r}
+ggplot(results) + labs(y = "Accuracy")
+```
+
+<br>
+<br>
+<br>
+
+#### 10-fold cross validation (Ten times):
+
+```{r}
+metric = "Accuracy"
+
+control <- trainControl(method = "repeatedcv", number = 10, repeats = 10)
+
+fit.lda.2 <- train(ML~., data = dat, method = "lda", 
+                   metric = metric, trControl = control)
+
+fit.rf.2 <- train(ML~., data = dat, method = "rf", 
+                  metric = metric, trControl = control)
+
+results <- resamples(list(LDA = fit.lda.2, RF = fit.rf.2))
+ggplot(results) + labs(y = "Accuracy")
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## GLM
+
+<br>
+
+### First round
+
+```{r}
+ex3 <- ex2[, 1:40]
+dat <- t(ex3)
+y <- c(rep(0, 20), rep(1, 20))
+f <- factor(y)
+
+fit = glmnet(dat, y, standardize = FALSE, family = "binomial")
+plot(fit, xvar = "lambda", label = TRUE)
+```
+
+The GLM is trained on a subset of the data using the data matrix "dat" as input features and the response variable "y" as the binary class labels. The graph shows the coefficients of the GLM as a function of the regularization parameter lambda. 
+
+The x-axis of the graph shows the log of the regularization parameter lambda, with smaller values of lambda corresponding to stronger regularization. The y-axis shows the value of the coefficients for each input feature. 
+
+<br>
+<br>
+<br>
+
+```{r}
+cfit = cv.glmnet(dat, y, standardize = FALSE, family = "binomial")
+plot(cfit)
+```
+
+
+The binomial deviance measures how well is the fit of GLM.
+
+A smaller value of the binomial deviance indicates a better fit of the model to the data, while a larger value indicates a worse fit.
+
+<br>
+<br>
+<br>
+
+```{r}
+summary(coef(cfit, s = cfit$lambda.min))
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Repeating analysis by using train + test sample subsets
+
+```{r}
+n.dols <- 20
+n.ins <- 20
+
+train <- sample(1:(n.dols), (n.dols - 5))
+
+test <- setdiff(1:(n.dols), train)
+test <- c(test, test + 20)
+
+train <- c(train, train + 20)
+
+fit = glmnet(dat[train, ], y[train], standardize = FALSE, family = "binomial")
+plot(fit)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+cfit = cv.glmnet(dat[train, ], y[train], standardize = FALSE, family = "binomial")
+plot(cfit)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+predict(fit, dat[test, ], type = "class", s = cfit$lambda.min)
+```
+
+<br>
+<br>
+<br>
+
+### ROCR
+
+```{r}
+pred2 <- predict(fit, dat[test, ], type = "response", s = cfit$lambda.min)
+plot(performance(prediction(pred2, y[test]), 'tpr', 'fpr'))
+```
+
+The precision-recall curve is a tool for evaluating the performance of binary classifiers, which is relevant to the GLM. The curve shows the trade-off between precision (positive predictive value) and recall (sensitivity) for different threshold values of the predicted probabilities. 
+
+The area under the precision-recall curve (AUPR) is a measure of the overall performance of the classifier, with higher values indicating better performance.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## Lasso
+
+```{r}
+keepers <- which(tt40$p.value < 0.05)
+ex3 <- ex2[keepers,]
+tex3 <- t(ex3)
+dat <- cbind(as.data.frame(tex3),f)
+colnames(dat)[ncol(dat)] <- "ML"
+```
+
+<br>
+
+```{r}
+control <- trainControl(method = "cv", number = 10)
+
+metric <- "Accuracy"
+
+fit.lasso <- train(ML~., data = dat, method = "glmnet",
+                   family = "binomial", 
+                   tuneGrid = expand.grid(alpha = 1, lambda = seq(0, 1, by = 0.05)), 
+                   trControl = control, 
+                   metric = metric)
+
+plot(fit.lasso)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## Comparing different classification methods
+
+```{r}
+fit.lda <- train(ML~., data = dat, method = "lda",
+                 metric = metric, trControl = control)
+
+fit.rf <- train(ML~., data = dat, method = "rf",
+                metric = metric, trControl = control)
+
+results <- resamples(list(RF = fit.rf, LDA = fit.lda, Lasso = fit.lasso))
+
+summary(results)
+```
+
+<br>
+
+```{r}
+ggplot(results) + labs(y = "Accuracy") 
+```
+
+This graph represents the level of accuracy of different methods, used in this analysis.
+
+The highest one is random forest (~8.77); then - lasso (~8.23); and the last one - LDA (~8).
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## Scudo
+
+```{r}
+dat <- ex[, 1:40]
+
+inTrain <- createDataPartition(f, list = FALSE)
+trainData <- dat[, inTrain]
+testData <- dat[, -inTrain]
+```
+
+<br>
+<br>
+<br>
+
+### Analysing training set
+
+```{r}
+trainRes <- scudoTrain(trainData, groups = f[inTrain], 
+                       nTop = 25, nBottom = 25, alpha = 0.05)
+
+trainRes
+```
+
+<br>
+<br>
+<br>
+
+### Inspecting signatures
+
+```{r}
+upSignatures(trainRes)[1:5, 1:5]
+```
+
+<br>
+
+```{r}
+consensusUpSignatures(trainRes)[1:5, ]
+```
+
+<br>
+<br>
+<br>
+
+### Plotting map of training samples
+
+```{r}
+trainNet <- scudoNetwork(trainRes, N = 0.4)
+scudoPlot(trainNet, vertex.label = NA)
+```
+
+<br>
+<br>
+<br>
+
+### Performing validation using testing samples
+
+```{r}
+testRes <- scudoTest(trainRes, testData, f[-inTrain], 
+                     nTop = 20, nBottom = 20)
+testNet <- scudoNetwork(testRes, N = 0.4)
+scudoPlot(testNet, vertex.label = NA)
+```
+
+<br>
+<br>
+<br>
+
+### Clustering
+
+```{r}
+testClust <- igraph::cluster_spinglass(testNet, spins = 2)
+plot(testClust, testNet, vertex.label = NA)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+classRes <- scudoClassify(trainData, testData, N = 0.4,
+                          nTop = 20, nBottom = 20,
+                          trainGroups = f[inTrain], alpha = 0.05)
+caret::confusionMatrix(classRes$predicted, f[-inTrain])
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## GOST
+
+```{r}
+gostres <- gost(query = c("X:1000:1000000", 
+                          "rs17396340", 
+                          "GO:0005005", 
+                          "ENSG00000156103", 
+                          "NLRP1"), 
+                organism = "hsapiens", 
+                ordered_query = FALSE, 
+                multi_query = FALSE, 
+                significant = TRUE, 
+                exclude_iea = FALSE, 
+                measure_underrepresentation = FALSE, 
+                evcodes = FALSE, 
+                user_threshold = 0.05,
+                correction_method = "g_SCS", 
+                domain_scope = "annotated", 
+                custom_bg = NULL, 
+                numeric_ns = "", 
+                sources = NULL, 
+                as_short_link = FALSE)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+names(gostres)
+```
+
+<br>
+
+```{r}
+head(gostres$result)
+```
+
+<br>
+<br>
+<br>
+
+```{r}
+p <- gostplot(gostres, 
+              capped = TRUE, 
+              interactive = FALSE)
+```
+
+<br>
+
+```{r}
+publish_gostplot(p, 
+                #highlight_terms = c("GO:0048013", "REAC:R-HSA-3928663")
+                 width = NA, height = NA)
+```
+
