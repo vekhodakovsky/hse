@@ -51,10 +51,7 @@ Sys.setlocale("LC_ALL", "English")
 
 ```{r include = FALSE}
 load("C:/Users/Vasily/Downloads/Logit-Probit.RData")
-# Select the desired variables from the "france" dataframe
 france <- france[, c("books1", "cinema1", "age", "gender", "edu", "bills", "commun")]
-
-
 ```
 
 
@@ -95,30 +92,24 @@ head(france)
 ```{r}
 library(sjPlot)
 model1 = glm(books1 ~ gender + age + edu + bills + commun, family = binomial, data = france)
-tab_model(model1) #log of odds ratio
+tab_model(model1)
 ```
 
 <br>
 
-`age` - the log of odds ratio of reading a book over not reading a book increases by 0.02 with each year. With age, the probability of reading a book increases.
-
-`gender` - the log of odds ratio is greater by 0.37 for women compared to men. Women are more likely to read a book.
-
-Economic difficulties and area of residence do not affect the probability of reading books.
+Log of odds ratio
 
 <br>
 <br>
 <br>
 
 ```{r}
-exp(coef(model1)) #odds ratio
+exp(coef(model1))
 ```
 
 <br>
 
-`age` - the odds of reading a book increase by 2% with each year of age (odds - 1).
-
-`gender` - the odds of reading a book are 1.5 higher for women compared to men.
+Odds ratio
 
 <br>
 <br>
@@ -128,8 +119,12 @@ exp(coef(model1)) #odds ratio
 
 ```{r}
 library(DescTools)
-PseudoR2(model1) #should be between 0.2 and 0.4 for perfect fit
+PseudoR2(model1)
 ```
+
+<br>
+
+Should be between 0.2 and 0.4 for perfect fit
 
 <br>
 <br>
@@ -139,8 +134,12 @@ PseudoR2(model1) #should be between 0.2 and 0.4 for perfect fit
 
 ```{r}
 library(pscl)
-hitmiss(model1) #should be >50%
+hitmiss(model1)
 ```
+
+<br>
+
+Should be 50%+
 
 <br>
 <br>
@@ -153,8 +152,12 @@ hitmiss(model1) #should be >50%
 model2 = glm(books1 ~ gender + age + edu + bills + commun, 
              family = binomial(link = probit), 
              data = france)
-tab_model(model2) #z-scores
+tab_model(model2)
 ```
+
+<br>
+
+Z-scores
 
 <br>
 <br>
@@ -172,12 +175,6 @@ summary(margins(model2))
 ```{r}
 summary(margins(model1))
 ```
-
-<br>
-
-On average the probability of reading a book increases by 0.004 with each year of age.
-
-On average for women the probability is greater by 0.07.
 
 <br>
 <br>

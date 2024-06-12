@@ -16,10 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r include=FALSE}
-Sys.setlocale("LC_ALL", "English")
-```
-
 <br>
 
 <div style="text-align: center;">
@@ -34,11 +30,16 @@ Modern Social Analysis, HSE SPb<br>
 Vasily Khodakovsky</span>
 </div>
 
+```{r include=FALSE}
+Sys.setlocale("LC_ALL", "English")
+```
+
 <br>
 <br>
 <br>
 <br>
 <br>
+
 <br>
 <br>
 <br>
@@ -99,27 +100,35 @@ tab_model(mpois_inter)
 
 ### Check for overdispersion
 
-```{r}
-dispersiontest(mpois, trafo = 1) #checks linear relationship
-```
-
-P-value < 0.05 => mean and variance are not equal;
-
-Overdispersion is present - alpha is lower 1 (coef between mean and variance).
-
 <br>
-<br>
-<br>
+
+#### Checking linear relationship:
 
 ```{r}
-dispersiontest(mpois, trafo = 2) #checks quadratic relationship
+dispersiontest(mpois, trafo = 1)
 ```
 
+<br>
 
-If p-value < 0.05, it is quadratic.
+If p-value is < 0.05, them mean and variance are not equal.
+
+Overdispersion is present - alpha (coef between mean and variance) is lower 1.
+
+<br>
+<br>
+<br>
+
+#### Checking quadratic relationship:
+
+```{r}
+dispersiontest(mpois, trafo = 2)
+```
+
+<br>
+
+If p-value is < 0.05, it is quadratic.
 
 Negative Binomial is more suitable.
-
 
 <br>
 <br>
@@ -151,6 +160,8 @@ fm_nb <- MASS::glm.nb(art ~ fem + mar + kid5 + phd + ment,
 screenreg(list(mpois, fm_qpois, fm_nb))
 ```
 
+<br>
+
 Intercept and married people lost their significance.
 
 By AIC, BIC, Log Likelihood - model3 is better.
@@ -169,31 +180,20 @@ Deviance of model1 and model2 are almost similar.
 zero.test(table(bioChemists$art))
 ```
 
-There are too many zeros; need to use Zeroes Inflation Measures.
+<br>
 
-There are two groups of people: who have and who don’t have articles.
+There are too many zeros; we need to use Zeroes Inflation Measures.
 
 <br>
 <br>
 <br>
 
 ```{r}
-#by default it is poisson
-#"|1" -> separation between count and zero models = > specify for whose who have articles
-#we predict here zero, whether or not the value will be zero
-
-#first part is negative binomial model, and the second part after "| 1"
-#are those who will have zero published articles only for intercept
-
 fm_zinb1 <- zeroinfl(art ~ fem + mar + kid5 + phd + ment|1,
                      data = bioChemists, dist = "negbin")
 
 summary(fm_zinb1)
 ```
-
-<br>
-
-log(theta) is a coeff between variance and mean.
 
 <br>
 <br>
@@ -207,10 +207,6 @@ summary(fm_zinb1)
 ```
 
 <br>
-
-The log of odds do not have publications decreases by 0.88 with each mentor’s publication.
-
-<br>
 <br>
 <br>
 
@@ -220,8 +216,6 @@ fm_zinb3 <- zeroinfl(art ~ fem + mar + kid5 + phd + ment|ment,
 
 summary(fm_zinb3)
 ```
-
-Prediction of success -> not publushing.
 
 <br>
 <br>
@@ -254,8 +248,6 @@ head(Insurance)
 <br>
 
 ```{r}
-#certain variable as exposure (GDP per capita, number a cigarettes by day/week)
-
 mod1 = glm(Claims ~ District + Group + Age, family = poisson, data = Insurance)
 
 mod2 = glm(Claims ~ District + Group + Age + offset(log(Holders)),
@@ -263,14 +255,3 @@ mod2 = glm(Claims ~ District + Group + Age + offset(log(Holders)),
 
 screenreg(list(mod1, mod2))
 ```
-
-
-
-
-
-
-
-
-
-
-

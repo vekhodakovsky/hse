@@ -11,7 +11,7 @@
 
 
 
-<title>Binary Logistics</title>
+<title>binary.knit</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1725,10 +1725,10 @@ display: none;
 
 <p><br></p>
 <div style="text-align: center;">
-<p><b><span class="h1">Binary Logistics</span></b></p>
-<p><span class="h5"> <b>Modern Social Analysis, HSE SPb</b><br>
-<em>Course:</em> <b>Quantitative Data Analysis</b> </span></p>
-<span class="h4"><b> Vasily Khodakovsky</span> </b>
+<p><span class="h1">Binary Logistics</span></p>
+<p><span class="h5"> Modern Social Analysis, HSE SPb<br>
+<em>Course:</em> Quantitative Data Analysis </span></p>
+<p><span class="h4"> Vasily Khodakovsky</span></p>
 </div>
 <p><br> <br> <br> <br> <br></p>
 <p><br> <br> <br> <br> <br></p>
@@ -1761,7 +1761,7 @@ town, large town).</p>
 <h1>Logit</h1>
 <pre class="r"><code>library(sjPlot)
 model1 = glm(books1 ~ gender + age + edu + bills + commun, family = binomial, data = france)
-tab_model(model1) #log of odds ratio</code></pre>
+tab_model(model1)</code></pre>
 <table style="border-collapse:collapse; border:none;">
 <tr>
 <th style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm;  text-align:left; ">
@@ -1901,15 +1901,9 @@ R<sup>2</sup> Tjur
 </tr>
 </table>
 <p><br></p>
-<p><code>age</code> - the log of odds ratio of reading a book over not
-reading a book increases by 0.02 with each year. With age, the
-probability of reading a book increases.</p>
-<p><code>gender</code> - the log of odds ratio is greater by 0.37 for
-women compared to men. Women are more likely to read a book.</p>
-<p>Economic difficulties and area of residence do not affect the
-probability of reading books.</p>
+<p>Log of odds ratio</p>
 <p><br> <br> <br></p>
-<pre class="r"><code>exp(coef(model1)) #odds ratio</code></pre>
+<pre class="r"><code>exp(coef(model1))</code></pre>
 <pre><code>##             (Intercept)            genderFemale                     age 
 ##             0.006437536             1.461259718             1.023600045 
 ##                     edu                billsyes communSmall/middle town 
@@ -1917,23 +1911,22 @@ probability of reading books.</p>
 ##        communLarge town 
 ##             1.464395591</code></pre>
 <p><br></p>
-<p><code>age</code> - the odds of reading a book increase by 2% with
-each year of age (odds - 1).</p>
-<p><code>gender</code> - the odds of reading a book are 1.5 higher for
-women compared to men.</p>
+<p>Odds ratio</p>
 <p><br> <br> <br></p>
 <div id="model-fit-r2" class="section level3">
 <h3>Model fit; R2</h3>
 <pre class="r"><code>library(DescTools)
-PseudoR2(model1) #should be between 0.2 and 0.4 for perfect fit</code></pre>
+PseudoR2(model1)</code></pre>
 <pre><code>##   McFadden 
 ## 0.09893525</code></pre>
+<p><br></p>
+<p>Should be between 0.2 and 0.4 for perfect fit</p>
 <p><br> <br> <br></p>
 </div>
 <div id="correctly-predicted-values" class="section level3">
 <h3>Correctly predicted values</h3>
 <pre class="r"><code>library(pscl)
-hitmiss(model1) #should be &gt;50%</code></pre>
+hitmiss(model1)</code></pre>
 <pre><code>## Classification Threshold = 0.5 
 ##        y=0 y=1
 ## yhat=0  37  35
@@ -1943,6 +1936,8 @@ hitmiss(model1) #should be &gt;50%</code></pre>
 ## Percent Correctly Predicted = 94.78%  for y = 1
 ## Null Model Correctly Predicts 71.05%</code></pre>
 <pre><code>## [1] 71.26193 13.55311 94.77612</code></pre>
+<p><br></p>
+<p>Should be 50%+</p>
 <p><br> <br> <br></p>
 </div>
 </div>
@@ -1951,7 +1946,7 @@ hitmiss(model1) #should be &gt;50%</code></pre>
 <pre class="r"><code>model2 = glm(books1 ~ gender + age + edu + bills + commun, 
              family = binomial(link = probit), 
              data = france)
-tab_model(model2) #z-scores</code></pre>
+tab_model(model2)</code></pre>
 <table style="border-collapse:collapse; border:none;">
 <tr>
 <th style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm;  text-align:left; ">
@@ -2090,6 +2085,8 @@ R<sup>2</sup> Nagelkerke
 </td>
 </tr>
 </table>
+<p><br></p>
+<p>Z-scores</p>
 <p><br> <br> <br></p>
 <pre class="r"><code>library(margins)
 summary(margins(model2))</code></pre>
@@ -2105,10 +2102,6 @@ summary(margins(model2))</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["factor"],"name":[1],"type":["chr"],"align":["left"]},{"label":["AME"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["z"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"age","2":"0.004262856","3":"0.000887512","4":"4.8031529","5":"1.561865e-06","6":"0.002523364","7":"0.006002347","_rn_":"1","_row":"age"},{"1":"billsyes","2":"-0.024288105","3":"0.029830376","4":"-0.8142072","5":"4.155263e-01","6":"-0.082754567","7":"0.034178357","_rn_":"2","_row":"billsyes"},{"1":"communLarge town","2":"0.067236872","3":"0.038115332","4":"1.7640374","5":"7.772567e-02","6":"-0.007467805","7":"0.141941550","_rn_":"3","_row":"communLarge town"},{"1":"communSmall/middle town","2":"0.007190407","3":"0.031277377","4":"0.2298916","5":"8.181760e-01","6":"-0.054112127","7":"0.068492940","_rn_":"4","_row":"communSmall/middle town"},{"1":"edu","2":"0.045137666","3":"0.004510745","4":"10.0066992","5":"1.424254e-23","6":"0.036296769","7":"0.053978563","_rn_":"5","_row":"edu"},{"1":"genderFemale","2":"0.070114616","3":"0.028435713","4":"2.4657238","5":"1.367367e-02","6":"0.014381642","7":"0.125847590","_rn_":"6","_row":"genderFemale"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p><br></p>
-<p>On average the probability of reading a book increases by 0.004 with
-each year of age.</p>
-<p>On average for women the probability is greater by 0.07.</p>
 <p><br> <br> <br></p>
 <pre class="r"><code>PseudoR2(model2)</code></pre>
 <pre><code>##   McFadden 

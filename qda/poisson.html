@@ -11,7 +11,7 @@
 
 
 
-<title>Poisson Models</title>
+<title>poisson.knit</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1725,12 +1725,13 @@ display: none;
 
 <p><br></p>
 <div style="text-align: center;">
-<p><b><span class="h1">Poisson Models</span></b></p>
-<p><span class="h5"> <b>Modern Social Analysis, HSE SPb</b><br>
-<em>Course:</em> <b>Quantitative Data Analysis</b> </span></p>
-<span class="h4"><b> Vasily Khodakovsky</span> </b>
+<p><span class="h1">Poisson Models</span></p>
+<p><span class="h5"> Modern Social Analysis, HSE SPb<br>
+<em>Course:</em> Quantitative Data Analysis </span></p>
+<p><span class="h4"> Vasily Khodakovsky</span></p>
 </div>
-<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+<p><br> <br> <br> <br> <br></p>
+<p><br> <br> <br> <br> <br></p>
 <div id="packages" class="section level1">
 <h1>Packages</h1>
 <pre class="r"><code>library(car)
@@ -2023,7 +2024,10 @@ R<sup>2</sup> Nagelkerke
 <p><br> <br> <br> <br> <br></p>
 <div id="check-for-overdispersion" class="section level3">
 <h3>Check for overdispersion</h3>
-<pre class="r"><code>dispersiontest(mpois, trafo = 1) #checks linear relationship</code></pre>
+<p><br></p>
+<div id="checking-linear-relationship" class="section level4">
+<h4>Checking linear relationship:</h4>
+<pre class="r"><code>dispersiontest(mpois, trafo = 1)</code></pre>
 <pre><code>## 
 ##  Overdispersion test
 ## 
@@ -2033,11 +2037,15 @@ R<sup>2</sup> Nagelkerke
 ## sample estimates:
 ##     alpha 
 ## 0.8245398</code></pre>
-<p>P-value &lt; 0.05 =&gt; mean and variance are not equal;</p>
-<p>Overdispersion is present - alpha is lower 1 (coef between mean and
-variance).</p>
+<p><br></p>
+<p>If p-value is &lt; 0.05, them mean and variance are not equal.</p>
+<p>Overdispersion is present - alpha (coef between mean and variance) is
+lower 1.</p>
 <p><br> <br> <br></p>
-<pre class="r"><code>dispersiontest(mpois, trafo = 2) #checks quadratic relationship</code></pre>
+</div>
+<div id="checking-quadratic-relationship" class="section level4">
+<h4>Checking quadratic relationship:</h4>
+<pre class="r"><code>dispersiontest(mpois, trafo = 2)</code></pre>
 <pre><code>## 
 ##  Overdispersion test
 ## 
@@ -2047,9 +2055,11 @@ variance).</p>
 ## sample estimates:
 ##     alpha 
 ## 0.5091216</code></pre>
-<p>If p-value &lt; 0.05, it is quadratic.</p>
+<p><br></p>
+<p>If p-value is &lt; 0.05, it is quadratic.</p>
 <p>Negative Binomial is more suitable.</p>
 <p><br> <br> <br> <br> <br></p>
+</div>
 </div>
 <div id="quasi-poisson" class="section level3">
 <h3>Quasi-Poisson</h3>
@@ -2084,6 +2094,7 @@ variance).</p>
 ## Num. obs.         915          915           915       
 ## =======================================================
 ## *** p &lt; 0.001; ** p &lt; 0.01; * p &lt; 0.05</code></pre>
+<p><br></p>
 <p>Intercept and married people lost their significance.</p>
 <p>By AIC, BIC, Log Likelihood - model3 is better.</p>
 <p>Deviance of model1 and model2 are almost similar.</p>
@@ -2097,18 +2108,11 @@ variance).</p>
 ##      Chi-square = 133.91825 
 ##      df = 1
 ##      pvalue: &lt; 2.22e-16</code></pre>
-<p>There are too many zeros; need to use Zeroes Inflation Measures.</p>
-<p>There are two groups of people: who have and who don’t have
-articles.</p>
+<p><br></p>
+<p>There are too many zeros; we need to use Zeroes Inflation
+Measures.</p>
 <p><br> <br> <br></p>
-<pre class="r"><code>#by default it is poisson
-#&quot;|1&quot; -&gt; separation between count and zero models = &gt; specify for whose who have articles
-#we predict here zero, whether or not the value will be zero
-
-#first part is negative binomial model, and the second part after &quot;| 1&quot;
-#are those who will have zero published articles only for intercept
-
-fm_zinb1 &lt;- zeroinfl(art ~ fem + mar + kid5 + phd + ment|1,
+<pre class="r"><code>fm_zinb1 &lt;- zeroinfl(art ~ fem + mar + kid5 + phd + ment|1,
                      data = bioChemists, dist = &quot;negbin&quot;)
 
 summary(fm_zinb1)</code></pre>
@@ -2140,8 +2144,6 @@ summary(fm_zinb1)</code></pre>
 ## Theta = 2.2645 
 ## Number of iterations in BFGS optimization: 35 
 ## Log-likelihood: -1561 on 8 Df</code></pre>
-<p><br></p>
-<p>log(theta) is a coeff between variance and mean.</p>
 <p><br> <br> <br></p>
 <pre class="r"><code>fm_zinb1 &lt;- zeroinfl(art ~ fem + mar + kid5 + phd + ment,
                      data = bioChemists, dist = &quot;negbin&quot;)
@@ -2180,9 +2182,6 @@ summary(fm_zinb1)</code></pre>
 ## Theta = 2.6548 
 ## Number of iterations in BFGS optimization: 27 
 ## Log-likelihood: -1550 on 13 Df</code></pre>
-<p><br></p>
-<p>The log of odds do not have publications decreases by 0.88 with each
-mentor’s publication.</p>
 <p><br> <br> <br></p>
 <pre class="r"><code>fm_zinb3 &lt;- zeroinfl(art ~ fem + mar + kid5 + phd + ment|ment,
                      data = bioChemists, dist = &quot;negbin&quot;)
@@ -2217,7 +2216,6 @@ summary(fm_zinb3)</code></pre>
 ## Theta = 2.726 
 ## Number of iterations in BFGS optimization: 20 
 ## Log-likelihood: -1553 on 9 Df</code></pre>
-<p>Prediction of success -&gt; not publushing.</p>
 <p><br> <br> <br></p>
 <pre class="r"><code>pR2(mpois)[4]</code></pre>
 <pre><code>## fitting null model for pseudo-r2</code></pre>
@@ -2238,9 +2236,7 @@ head(Insurance)</code></pre>
   </script>
 </div>
 <p><br> <br> <br></p>
-<pre class="r"><code>#certain variable as exposure (GDP per capita, number a cigarettes by day/week)
-
-mod1 = glm(Claims ~ District + Group + Age, family = poisson, data = Insurance)
+<pre class="r"><code>mod1 = glm(Claims ~ District + Group + Age, family = poisson, data = Insurance)
 
 mod2 = glm(Claims ~ District + Group + Age + offset(log(Holders)),
            family = poisson, data = Insurance)

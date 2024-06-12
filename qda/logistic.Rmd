@@ -54,9 +54,17 @@ Sys.setlocale("LC_ALL", "English")
 
 ```{r}
 library(foreign)
+```
 
+<br>
+
+```{r}
 data = read.dta("https://stats.idre.ucla.edu/stat/data/hsbdemo.dta")
+```
 
+<br>
+
+```{r}
 options(width = 1000)
 tail(data)
 ```
@@ -69,9 +77,9 @@ tail(data)
 
 # Multinomial regression
 
-```{r}
-#treatment contrasts
+<br>
 
+```{r}
 library(sjPlot)
 library(nnet)
 m1 = multinom(prog ~ ses + math, data = data)
@@ -82,13 +90,6 @@ m1 = multinom(prog ~ ses + math, data = data)
 ```{r}
 summary(m1, Wald = T)
 ```
-
-
-Socio-economic status doesn't affect the choice of a program.
-
-1 point increse in math results increases the log of odds of choosing an academic program vs a general program by 0.082, and decreases the log of odds of choosing a vocation program vs a general program by 0.071.
-
-1 point increse in math results increases odds of choosing academic program vs general probram by 9%, and decreases the log of odds of choosing vocation program vs general program by 7%.
 
 <br>
 <br>
@@ -113,15 +114,19 @@ stargazer(m1, type = "text")
 
 ```{r}
 library(pscl)
-pR2(m1) #bearable
+pR2(m1)
 ```
+
+<br>
+
+Bearable
 
 <br>
 <br>
 <br>
 
 ```{r}
-hitmiss(m1) #bearable
+hitmiss(m1)
 ```
 
 <br>
@@ -260,14 +265,6 @@ summary(m_ac)
 ```
 
 <br>
-
-Socio-economic status still doesn't affect the choice of a program.
-
-1 point increase in math results decrease the log of odds of choosing a vocation program by 0.122 and increase the log of odds of choosing an academic program by 0.113.
-
-1 point increase in math results decrease the odds of choosing a vocation program by 12% and increase the odds of choosing an academic program by 12%.
-
-<br>
 <br>
 <br>
 
@@ -310,6 +307,8 @@ hitmiss(m_ac)
 <br>
 <br>
 <br>
+<br>
+<br>
 
 # Ordered Regression
 
@@ -327,20 +326,6 @@ library(MASS)
 m3 = polr(poverty ~ religion + degree + age + gender + country, data = WVS)
 tab_model(m3)
 ```
-
-<br>
-
-The log of odds of more more positive evaluation of government efforts is 0.18 greater for the respondents who identify with a religious denomination.
-
-The log of odds of more more positive evaluation of government efforts is 0.32 lower for the respondents who live in Norway compared to those who live in Australia.
-
-With each year of age the log of odds of more more positive evaluation of government efforts increases by 0.01.
-
-The odds of more positive evaluation of government efforts are 20% higher for the respondents who identify with a religious denomination.
-
-The odds of more more positive evaluation of government efforts are 28% lower for the respondents who live in Norway compared to those who live in Australia.
-
-With each year of age the odds of more more positive evaluation of government efforts increase by 1%.
 
 <br>
 <br>
